@@ -49,6 +49,14 @@ struct DeadlineBarView: View {
     }
   }
 
+  private var deadlineTitle: some View {
+    Text(deadline.title)
+      .font(.subheadline)
+      .fontWeight(.semibold)
+      .lineLimit(1)
+      .padding(.trailing, 8)
+  }
+
   var body: some View {
     HStack {
       Spacer()
@@ -58,31 +66,21 @@ struct DeadlineBarView: View {
           Spacer()
 
           if shouldShowTitleOutside {
-            // Show title outside the bar for narrow bars
-            Text(deadline.title)
-              .font(.caption)
+            deadlineTitle
               .foregroundColor(.primary)
-              .lineLimit(1)
-              .padding(.trailing, 8)
           }
 
           RoundedRectangle(cornerRadius: 8)
             .fill(barColor)
             .frame(width: geometry.size.width * barWidth)
             .overlay(
-              // Only show title inside if bar is wide enough
               shouldShowTitleOutside
                 ? nil
-                : Text(deadline.title)
-                  .font(.caption)
-                  .foregroundColor(textColor)
-                  .padding(.horizontal, 8)
-                  .lineLimit(1),
+                : deadlineTitle.foregroundColor(textColor),
               alignment: .center
             )
         }
       }
-      .frame(height: 32)  // Set a fixed height for the bars
     }
   }
 }
@@ -95,10 +93,22 @@ struct DeadlineBarView: View {
   )
 
   // Create categories with different colors
-  let workCategory = Category(name: "Work", colorHex: Category.DefaultColors.blue)
-  let personalCategory = Category(name: "Personal", colorHex: Category.DefaultColors.green)
-  let urgentCategory = Category(name: "Urgent", colorHex: Category.DefaultColors.red)
-  let studyCategory = Category(name: "Study", colorHex: Category.DefaultColors.purple)
+  let workCategory = Category(
+    name: "Work",
+    colorHex: Category.DefaultColors.blue
+  )
+  let personalCategory = Category(
+    name: "Personal",
+    colorHex: Category.DefaultColors.green
+  )
+  let urgentCategory = Category(
+    name: "Urgent",
+    colorHex: Category.DefaultColors.red
+  )
+  let studyCategory = Category(
+    name: "Study",
+    colorHex: Category.DefaultColors.purple
+  )
 
   // Create deadlines with varying time distances to test different bar widths
   let overdueDeadline = Deadline(
@@ -167,31 +177,37 @@ struct DeadlineBarView: View {
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: overdueDeadline)
+          .frame(height: 40)
 
         Text("Due Today")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: todayDeadline)
+          .frame(height: 40)
 
         Text("Due Tomorrow")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: tomorrowDeadline)
+          .frame(height: 40)
 
         Text("Due in 1 Week")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: weekDeadline)
+          .frame(height: 40)
 
         Text("Due in 25 Days (Title Outside)")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: distantDeadline)
+          .frame(height: 40)
 
         Text("Due in 35+ Days (Minimum Width, No Category)")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: veryDistantDeadline)
+          .frame(height: 40)
       }
     }
     .padding()
