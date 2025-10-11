@@ -12,13 +12,16 @@ struct CategoriesView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Category.name, order: .forward) private var categories: [Category]
   @State private var showingAddCategory = false
-  @State private var newCategoryName = ""
+  @State private var categoryToEdit: Category?
 
   var body: some View {
     NavigationView {
       List {
         ForEach(categories) { category in
           CategoryRowView(category: category)
+            .onTapGesture {
+              categoryToEdit = category
+            }
         }
         .onDelete(perform: deleteCategories)
       }
@@ -31,7 +34,14 @@ struct CategoriesView: View {
         }
       }
       .sheet(isPresented: $showingAddCategory) {
-        AddCategoryView()
+        CategoryFormView()
+          .presentationDetents([.medium, .large])
+          .presentationDragIndicator(.visible)
+      }
+      .sheet(item: $categoryToEdit) { category in
+        CategoryFormView(category: category)
+          .presentationDetents([.medium, .large])
+          .presentationDragIndicator(.visible)
       }
       .overlay {
         if categories.isEmpty {
@@ -51,98 +61,6 @@ struct CategoriesView: View {
         modelContext.delete(categories[index])
       }
     }
-  }
-}
-
-struct CategoryRowView: View {
-  let category: Category
-
-  var body: some View {
-    HStack {
-      Circle()
-        .fill(category.color)
-        .frame(width: 16, height: 16)
-
-      Text(category.name)
-        .font(.headline)
-
-      Spacer()
-
-      Text("\(category.deadlines.count)")
-        .font(.caption)
-        .foregroundColor(.secondary)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color.secondary.opacity(0.2))
-        .clipShape(Capsule())
-    }
-    .padding(.vertical, 4)
-  }
-}
-
-struct AddCategoryView: View {
-  @Environment(\.dismiss) private var dismiss
-  @Environment(\.modelContext) private var modelContext
-  @State private var name = ""
-  @State private var selectedColorHex = Category.DefaultColors.blue
-
-  private let availableColors = Category.DefaultColors.all
-
-  var body: some View {
-    NavigationView {
-      Form {
-        Section(header: Text("Category Details")) {
-          TextField("Category Name", text: $name)
-        }
-
-        Section(header: Text("Color")) {
-          LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
-            ForEach(availableColors, id: \.self) { colorHex in
-              Button(action: {
-                selectedColorHex = colorHex
-              }) {
-                Circle()
-                  .fill(Color(hex: colorHex))
-                  .frame(width: 40, height: 40)
-                  .overlay(
-                    Circle()
-                      .stroke(
-                        selectedColorHex == colorHex ? Color.primary : Color.clear, lineWidth: 3)
-                  )
-              }
-            }
-          }
-          .padding(.vertical, 8)
-        }
-      }
-      .navigationTitle("Add Category")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button("Cancel") {
-            dismiss()
-          }
-        }
-
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button("Save") {
-            saveCategory()
-          }
-          .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
-        }
-      }
-    }
-  }
-
-  private func saveCategory() {
-    let trimmedName = name.trimmingCharacters(in: .whitespaces)
-    guard !trimmedName.isEmpty else { return }
-
-    withAnimation {
-      let newCategory = Category(name: trimmedName, colorHex: selectedColorHex)
-      modelContext.insert(newCategory)
-    }
-    dismiss()
   }
 }
 
