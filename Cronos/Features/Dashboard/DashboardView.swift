@@ -21,11 +21,12 @@ struct DashboardView: View {
           DeadlineBarView(deadline: deadline)
             .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
             .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
               Button(action: {
                 deadlineToEdit = deadline
               }) {
-                Label("Edit", systemImage: "pencil")
+                Image(systemName: "pencil")
               }
               .tint(.blue)
 
@@ -35,7 +36,7 @@ struct DashboardView: View {
                   deleteDeadline(deadline)
                 }
               ) {
-                Label("Delete", systemImage: "trash")
+                Image(systemName: "trash")
               }
             }
         }
