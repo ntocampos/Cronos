@@ -11,24 +11,53 @@ import SwiftUI
 struct DashboardView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
+  @State private var showingAddDeadline = false
+  @State private var deadlineToEdit: Deadline?
 
   var body: some View {
     NavigationView {
-      ScrollView {
-        LazyVStack(spacing: 12) {
-          ForEach(deadlines) { deadline in
-            DeadlineBarView(deadline: deadline)
-          }
+      List {
+        ForEach(deadlines) { deadline in
+          DeadlineBarView(deadline: deadline)
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+            .listRowBackground(Color.clear)
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+              Button(action: {
+                deadlineToEdit = deadline
+              }) {
+                Label("Edit", systemImage: "pencil")
+              }
+              .tint(.blue)
+
+              Button(
+                role: .destructive,
+                action: {
+                  deleteDeadline(deadline)
+                }
+              ) {
+                Label("Delete", systemImage: "trash")
+              }
+            }
         }
-        .padding()
       }
-      .navigationTitle("Deadlines")
+      .listStyle(.plain)
+      .navigationTitle("Dashboard")
       .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
-          Button(action: addSampleDeadline) {
+          Button(action: { showingAddDeadline = true }) {
             Label("Add Deadline", systemImage: "plus")
           }
         }
+      }
+      .sheet(isPresented: $showingAddDeadline) {
+        DeadlineFormView()
+          .presentationDetents([.large])
+          .presentationDragIndicator(.visible)
+      }
+      .sheet(item: $deadlineToEdit) { deadline in
+        DeadlineFormView(deadline: deadline)
+          .presentationDetents([.large])
+          .presentationDragIndicator(.visible)
       }
       .overlay {
         if deadlines.isEmpty {
@@ -42,14 +71,9 @@ struct DashboardView: View {
     }
   }
 
-  private func addSampleDeadline() {
+  private func deleteDeadline(_ deadline: Deadline) {
     withAnimation {
-      let newDeadline = Deadline(
-        title: "Sample Deadline",
-        notes: "This is a sample deadline",
-        date: Date().addingTimeInterval(TimeInterval.random(in: 86400...604800))  // 1-7 days from now
-      )
-      modelContext.insert(newDeadline)
+      modelContext.delete(deadline)
     }
   }
 }
@@ -105,6 +129,13 @@ struct DeadlineBarView: View {
             .font(.headline)
             .foregroundColor(deadline.isPast ? .red : .primary)
 
+          if let notes = deadline.notes, !notes.isEmpty {
+            Text(notes)
+              .font(.caption)
+              .foregroundColor(.secondary)
+              .lineLimit(2)
+          }
+
           HStack {
             Text(dateText)
               .font(.caption)
@@ -127,9 +158,15 @@ struct DeadlineBarView: View {
 
         Spacer()
 
-        Text(deadline.date.formatted(date: .abbreviated, time: .omitted))
-          .font(.caption)
-          .foregroundColor(.secondary)
+        VStack(alignment: .trailing, spacing: 2) {
+          Text(deadline.date.formatted(date: .abbreviated, time: .omitted))
+            .font(.caption)
+            .foregroundColor(.secondary)
+
+          Text(deadline.date.formatted(date: .omitted, time: .shortened))
+            .font(.caption2)
+            .foregroundColor(.secondary)
+        }
       }
 
       // Progress bar
@@ -156,6 +193,7 @@ struct DeadlineBarView: View {
     .background(Color(UIColor.secondarySystemBackground))
     .cornerRadius(12)
     .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+    .contentShape(Rectangle())  // Makes entire view tappable
   }
 }
 
