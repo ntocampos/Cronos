@@ -30,6 +30,15 @@ struct DashboardView: View {
           }
         }
       }
+      .overlay {
+        if deadlines.isEmpty {
+          ContentUnavailableView(
+            "No Deadlines",
+            systemImage: "calendar",
+            description: Text("Add your first deadline to get started")
+          )
+        }
+      }
     }
   }
 

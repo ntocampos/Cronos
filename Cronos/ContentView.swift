@@ -10,7 +10,22 @@ import SwiftUI
 
 struct ContentView: View {
   var body: some View {
-    DashboardView()
+    TabView {
+      DashboardView()
+        .tabItem {
+          Label("Deadlines", systemImage: "chart.bar.fill")
+        }
+
+      CategoriesView()
+        .tabItem {
+          Label("Categories", systemImage: "folder.fill")
+        }
+
+      SettingsView()
+        .tabItem {
+          Label("Settings", systemImage: "gear")
+        }
+    }
   }
 }
 
