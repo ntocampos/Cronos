@@ -12,14 +12,15 @@ import SwiftUI
 final class Category: Identifiable {
   var id: UUID
   var name: String
-  var color: Color
+  var colorHex: String
 
   @Relationship(deleteRule: .nullify, inverse: \Deadline.category)
   var deadlines: [Deadline]
 
-  init(name: String, color: Color) {
+  init(name: String, colorHex: String = "#007AFF") {
     self.id = UUID()
     self.name = name
-    self.color = color
+    self.colorHex = colorHex
+    self.deadlines = []
   }
 }
