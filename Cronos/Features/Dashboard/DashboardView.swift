@@ -16,32 +16,13 @@ struct DashboardView: View {
 
   var body: some View {
     NavigationView {
-      List {
-        ForEach(deadlines) { deadline in
-          DeadlineBarView(deadline: deadline)
-            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-              Button(action: {
-                deadlineToEdit = deadline
-              }) {
-                Image(systemName: "pencil")
-              }
-              .tint(.blue)
-
-              Button(
-                role: .destructive,
-                action: {
-                  deleteDeadline(deadline)
-                }
-              ) {
-                Image(systemName: "trash")
-              }
-            }
-        }
-      }
-      .listStyle(.plain)
+      DeadlineListView(
+        deadlines: deadlines,
+        onEdit: { deadline in
+          deadlineToEdit = deadline
+        },
+        onDelete: deleteDeadline
+      )
       .navigationTitle("Dashboard")
       .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
