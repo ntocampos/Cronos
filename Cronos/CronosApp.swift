@@ -12,7 +12,8 @@ import SwiftUI
 struct CronosApp: App {
   var sharedModelContainer: ModelContainer = {
     let schema = Schema([
-      Item.self
+      Deadline.self,
+      Category.self
     ])
     let modelConfiguration = ModelConfiguration(
       schema: schema,
