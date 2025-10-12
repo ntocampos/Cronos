@@ -13,7 +13,7 @@ struct CronosApp: App {
   var sharedModelContainer: ModelContainer = {
     let schema = Schema([
       Deadline.self,
-      Category.self
+      Category.self,
     ])
     let modelConfiguration = ModelConfiguration(
       schema: schema,
