@@ -39,11 +39,9 @@ struct DeadlineFormView: View {
       Form {
         Section(header: Text("Deadline Details")) {
           TextField("Title", text: $title)
-            .textInputAutocapitalization(.words)
 
           TextField("Notes (optional)", text: $notes, axis: .vertical)
             .lineLimit(3...6)
-            .textInputAutocapitalization(.sentences)
         }
 
         Section(header: Text("Date & Time")) {

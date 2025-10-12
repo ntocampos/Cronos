@@ -36,7 +36,6 @@ struct CategoryFormView: View {
       Form {
         Section(header: Text("Category Details")) {
           TextField("Category Name", text: $name)
-            .textInputAutocapitalization(.words)
         }
 
         Section(header: Text("Color")) {
