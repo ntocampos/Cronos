@@ -37,6 +37,10 @@ final class DeadlineGroupingService {
   private static func groupByTimeframe(_ deadlines: [Deadline]) -> [DeadlineGroup] {
     var timeframeBuckets = TimeframeBuckets()
 
+    let overdueDeadlines = deadlines.filter { deadline in
+      deadline.date < timeframeBuckets.now
+    }
+
     let next30DaysDeadlines = deadlines.filter { deadline in
       deadline.date >= timeframeBuckets.now && deadline.date <= timeframeBuckets.thirtyDaysFromNow
     }
@@ -56,6 +60,10 @@ final class DeadlineGroupingService {
     }
 
     var groups: [DeadlineGroup] = []
+
+    if !overdueDeadlines.isEmpty {
+      groups.append(DeadlineGroup(title: "Overdue", deadlines: overdueDeadlines))
+    }
 
     if !next30DaysDeadlines.isEmpty {
       groups.append(DeadlineGroup(title: "Next 30 days", deadlines: next30DaysDeadlines))

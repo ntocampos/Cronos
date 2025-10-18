@@ -110,4 +110,54 @@ struct DeadlineGroupingServiceTests {
     let timeframeGroups = DeadlineGroupingService.groupDeadlines(emptyDeadlines, by: .byTimeframe)
     #expect(timeframeGroups.isEmpty)
   }
+
+  @Test("Overdue deadlines are grouped correctly")
+  func overdueDeadlinesAreGroupedCorrectly() {
+    let now = Date()
+    let calendar = Calendar.current
+
+    let overdueDeadlines = [
+      Deadline(
+        title: "Overdue Task 1",
+        date: calendar.date(byAdding: .day, value: -5, to: now)!,
+        category: nil
+      ),
+      Deadline(
+        title: "Overdue Task 2",
+        date: calendar.date(byAdding: .day, value: -1, to: now)!,
+        category: nil
+      ),
+    ]
+
+    let groups = DeadlineGroupingService.groupDeadlines(overdueDeadlines, by: .byTimeframe)
+
+    #expect(groups.count == 1)
+    #expect(groups.first?.title == "Overdue")
+    #expect(groups.first?.deadlines.count == 2)
+  }
+
+  @Test("Overdue and future deadlines are separated correctly")
+  func overdueAndFutureDeadlinesAreSeparatedCorrectly() {
+    let now = Date()
+    let calendar = Calendar.current
+
+    let mixedDeadlines = [
+      Deadline(
+        title: "Overdue",
+        date: calendar.date(byAdding: .day, value: -2, to: now)!,
+        category: nil
+      ),
+      Deadline(
+        title: "Next week",
+        date: calendar.date(byAdding: .day, value: 7, to: now)!,
+        category: nil
+      ),
+    ]
+
+    let groups = DeadlineGroupingService.groupDeadlines(mixedDeadlines, by: .byTimeframe)
+
+    #expect(groups.count == 2)
+    #expect(groups.first?.title == "Overdue")
+    #expect(groups.last?.title == "Next 30 days")
+  }
 }
