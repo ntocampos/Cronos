@@ -12,52 +12,35 @@ struct DashboardView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
   @State private var showingAddDeadline = false
-  @State private var deadlineToEdit: Deadline?
 
   var body: some View {
     NavigationView {
-      DeadlineListView(
-        deadlines: deadlines,
-        onEdit: { deadline in
-          deadlineToEdit = deadline
-        },
-        onDelete: deleteDeadline
-      )
-      .navigationTitle("Dashboard")
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button(action: { showingAddDeadline = true }) {
-            Label("Add Deadline", systemImage: "plus")
+      DeadlineGroupsView()
+        .navigationTitle("Dashboard")
+        .toolbar {
+          ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: { showingAddDeadline = true }) {
+              Label("Add Deadline", systemImage: "plus")
+            }
           }
         }
-      }
-      .sheet(isPresented: $showingAddDeadline) {
-        DeadlineFormView()
-          .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
-      }
-      .sheet(item: $deadlineToEdit) { deadline in
-        DeadlineFormView(deadline: deadline)
-          .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
-      }
-      .overlay {
-        if deadlines.isEmpty {
-          ContentUnavailableView(
-            "No Deadlines",
-            systemImage: "calendar",
-            description: Text("Add your first deadline to get started")
-          )
+        .sheet(isPresented: $showingAddDeadline) {
+          DeadlineFormView()
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
-      }
+        .overlay {
+          if deadlines.isEmpty {
+            ContentUnavailableView(
+              "No Deadlines",
+              systemImage: "calendar",
+              description: Text("Add your first deadline to get started")
+            )
+          }
+        }
     }
   }
 
-  private func deleteDeadline(_ deadline: Deadline) {
-    withAnimation {
-      modelContext.delete(deadline)
-    }
-  }
 }
 
 #Preview {
