@@ -27,18 +27,15 @@ struct DeadlineListView: View {
   }
 
   var body: some View {
-    List {
-      if let sectionTitle = sectionTitle {
-        Section {
-          deadlinesContent
-        } header: {
-          Text(sectionTitle)
-        }
-      } else {
+    if let sectionTitle = sectionTitle {
+      Section {
         deadlinesContent
+      } header: {
+        Text(sectionTitle)
       }
+    } else {
+      deadlinesContent
     }
-    .listStyle(.plain)
   }
 
   @ViewBuilder
@@ -72,7 +69,7 @@ struct DeadlineListView: View {
 #Preview {
   let sampleDeadlines = SampleData.getDeadlines()
 
-  return VStack(spacing: 20) {
+  return List {
     DeadlineListView(
       deadlines: Array(sampleDeadlines.prefix(2)),
       onEdit: { _ in print("Edit tapped") },
@@ -86,4 +83,5 @@ struct DeadlineListView: View {
       sectionTitle: "All Deadlines"
     )
   }
+  .listStyle(.plain)
 }

@@ -49,23 +49,26 @@ struct DeadlineGroupsView: View {
 
   @ViewBuilder
   private var deadlinesContentView: some View {
-    switch selectedGroup {
-    case .all:
-      DeadlineListView(
-        deadlines: deadlines,
-        onEdit: editDeadline,
-        onDelete: deleteDeadline
-      )
-    case .byCategory, .byTimeframe:
-      ForEach(groupedDeadlines) { group in
+    List {
+      switch selectedGroup {
+      case .all:
         DeadlineListView(
-          deadlines: group.deadlines,
+          deadlines: deadlines,
           onEdit: editDeadline,
-          onDelete: deleteDeadline,
-          sectionTitle: group.title
+          onDelete: deleteDeadline
         )
+      case .byCategory, .byTimeframe:
+        ForEach(groupedDeadlines) { group in
+          DeadlineListView(
+            deadlines: group.deadlines,
+            onEdit: editDeadline,
+            onDelete: deleteDeadline,
+            sectionTitle: group.title
+          )
+        }
       }
     }
+    .listStyle(.plain)
   }
 
   private func editDeadlineSheet(for deadline: Deadline) -> some View {
