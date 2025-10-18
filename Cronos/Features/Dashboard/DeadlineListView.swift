@@ -100,7 +100,7 @@ struct DeadlineListView: View {
     Deadline(
       title: "Doctor Appointment",
       notes: "Annual checkup",
-      date: Calendar.current.date(byAdding: .day, value: -2, to: Date()) ?? Date(),
+      date: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date(),
       category: personalCategory
     ),
   ]
@@ -111,7 +111,6 @@ struct DeadlineListView: View {
       onEdit: { _ in print("Edit tapped") },
       onDelete: { _ in print("Delete tapped") }
     )
-    .frame(height: 200)
 
     DeadlineListView(
       deadlines: Array(sampleDeadlines.suffix(2)),
@@ -119,7 +118,6 @@ struct DeadlineListView: View {
       onDelete: { _ in print("Delete tapped") },
       sectionTitle: "All Deadlines"
     )
-    .frame(height: 250)
   }
   .modelContainer(container)
 }

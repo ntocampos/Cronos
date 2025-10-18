@@ -59,11 +59,9 @@ struct DeadlineBarView: View {
 
   var body: some View {
     HStack {
-      Spacer()
-
       GeometryReader { geometry in
         HStack {
-          Spacer()
+          Spacer(minLength: 0)
 
           if shouldShowTitleOutside {
             deadlineTitle
