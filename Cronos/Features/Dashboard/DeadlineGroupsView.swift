@@ -41,7 +41,7 @@ struct DeadlineGroupsView: View {
           onEdit: editDeadline,
           onDelete: deleteDeadline
         )
-      case .byCategory:
+      case .byCategory, .byTimeframe:
         ForEach(groupedDeadlines) { group in
           DeadlineListView(
             deadlines: group.deadlines,
@@ -50,8 +50,6 @@ struct DeadlineGroupsView: View {
             sectionTitle: group.title
           )
         }
-      case .byTimeframe:
-        Text("Not implemented yet")
       }
     }
     .sheet(item: $deadlineToEdit) { deadline in
@@ -86,8 +84,7 @@ struct DeadlineGroupsView: View {
     case .byCategory:
       return groupByCategory()
     case .byTimeframe:
-      return []
-    case .all:
+      return groupByTimeframe()
     default:
       return [DeadlineGroup(title: "All Deadlines", deadlines: deadlines)]
     }
@@ -103,6 +100,53 @@ struct DeadlineGroupsView: View {
     }
     .sorted { $0.title < $1.title }
 
+  }
+
+  private func groupByTimeframe() -> [DeadlineGroup] {
+    let now = Date()
+    let thirtyDaysFromNow = Calendar.current.date(byAdding: .day, value: 30, to: now) ?? now
+    let sixMonthsFromNow = Calendar.current.date(byAdding: .month, value: 6, to: now) ?? now
+    let oneYearFromNow = Calendar.current.date(byAdding: .year, value: 1, to: now) ?? now
+
+    // Next 30 days: from now to 30 days
+    let next30DaysDeadlines = deadlines.filter { deadline in
+      deadline.date >= now && deadline.date <= thirtyDaysFromNow
+    }
+
+    // Next 6 months: from 30 days to 6 months
+    let next6MonthsDeadlines = deadlines.filter { deadline in
+      deadline.date > thirtyDaysFromNow && deadline.date <= sixMonthsFromNow
+    }
+
+    // Next year: from 6 months to 1 year
+    let nextYearDeadlines = deadlines.filter { deadline in
+      deadline.date > sixMonthsFromNow && deadline.date <= oneYearFromNow
+    }
+
+    // More than 1 year: beyond 1 year from now
+    let moreThanOneYearDeadlines = deadlines.filter { deadline in
+      deadline.date > oneYearFromNow
+    }
+
+    var groups: [DeadlineGroup] = []
+
+    if !next30DaysDeadlines.isEmpty {
+      groups.append(DeadlineGroup(title: "Next 30 days", deadlines: next30DaysDeadlines))
+    }
+
+    if !next6MonthsDeadlines.isEmpty {
+      groups.append(DeadlineGroup(title: "Next 6 months", deadlines: next6MonthsDeadlines))
+    }
+
+    if !nextYearDeadlines.isEmpty {
+      groups.append(DeadlineGroup(title: "Next year", deadlines: nextYearDeadlines))
+    }
+
+    if !moreThanOneYearDeadlines.isEmpty {
+      groups.append(DeadlineGroup(title: "More than 1 year", deadlines: moreThanOneYearDeadlines))
+    }
+
+    return groups
   }
 }
 
