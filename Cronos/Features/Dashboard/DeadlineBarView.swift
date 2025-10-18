@@ -84,11 +84,7 @@ struct DeadlineBarView: View {
 }
 
 #Preview {
-  let container = try! ModelContainer(
-    for: Deadline.self,
-    Category.self,
-    configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-  )
+  let container = ModelContainer.emptyPreview
 
   // Create categories with different colors
   let workCategory = Category(
@@ -109,59 +105,55 @@ struct DeadlineBarView: View {
   )
 
   // Create deadlines with varying time distances to test different bar widths
-  let overdueDeadline = Deadline(
-    title: "Overdue Task",
-    notes: "This should be a full-width red bar",
-    date: Date().addingTimeInterval(-86400 * 2),  // 2 days ago
-    category: urgentCategory
-  )
-
-  let todayDeadline = Deadline(
-    title: "Due Today",
-    notes: "Very urgent deadline",
-    date: Date(),
-    category: workCategory
-  )
-
-  let tomorrowDeadline = Deadline(
-    title: "Submit Quarterly Report to Management",
-    notes: "Long title to test text handling",
-    date: Date().addingTimeInterval(86400),  // Tomorrow
-    category: workCategory
-  )
-
-  let weekDeadline = Deadline(
-    title: "Team Meeting Preparation",
-    notes: "Medium urgency",
-    date: Date().addingTimeInterval(86400 * 7),  // 1 week
-    category: personalCategory
-  )
-
-  let distantDeadline = Deadline(
-    title: "Long Term Project Review and Final Presentation",
-    notes: "This should show title outside the bar",
-    date: Date().addingTimeInterval(86400 * 25),  // 25 days (should be narrow)
-    category: studyCategory
-  )
-
-  let veryDistantDeadline = Deadline(
-    title: "Annual Conference Planning Committee Meeting",
-    notes: "Very narrow bar test",
-    date: Date().addingTimeInterval(86400 * 35),  // 35+ days (minimum width)
-    category: nil  // No category to test gray fallback
-  )
+  let testDeadlines = [
+    Deadline(
+      title: "Overdue Task",
+      notes: "This should be a full-width red bar",
+      date: Date().addingTimeInterval(-86400 * 2),  // 2 days ago
+      category: urgentCategory
+    ),
+    Deadline(
+      title: "Due Today",
+      notes: "Very urgent deadline",
+      date: Date(),
+      category: workCategory
+    ),
+    Deadline(
+      title: "Submit Quarterly Report to Management",
+      notes: "Long title to test text handling",
+      date: Date().addingTimeInterval(86400),  // Tomorrow
+      category: workCategory
+    ),
+    Deadline(
+      title: "Team Meeting Preparation",
+      notes: "Medium urgency",
+      date: Date().addingTimeInterval(86400 * 7),  // 1 week
+      category: personalCategory
+    ),
+    Deadline(
+      title: "Long Term Project Review and Final Presentation",
+      notes: "This should show title outside the bar",
+      date: Date().addingTimeInterval(86400 * 25),  // 25 days (should be narrow)
+      category: studyCategory
+    ),
+    Deadline(
+      title: "Annual Conference Planning Committee Meeting",
+      notes: "Very narrow bar test",
+      date: Date().addingTimeInterval(86400 * 35),  // 35+ days (minimum width)
+      category: nil  // No category to test gray fallback
+    ),
+  ]
 
   // Insert data
-  container.mainContext.insert(workCategory)
-  container.mainContext.insert(personalCategory)
-  container.mainContext.insert(urgentCategory)
-  container.mainContext.insert(studyCategory)
-  container.mainContext.insert(overdueDeadline)
-  container.mainContext.insert(todayDeadline)
-  container.mainContext.insert(tomorrowDeadline)
-  container.mainContext.insert(weekDeadline)
-  container.mainContext.insert(distantDeadline)
-  container.mainContext.insert(veryDistantDeadline)
+  let context = container.mainContext
+  context.insert(workCategory)
+  context.insert(personalCategory)
+  context.insert(urgentCategory)
+  context.insert(studyCategory)
+
+  for deadline in testDeadlines {
+    context.insert(deadline)
+  }
 
   return ScrollView {
     VStack(spacing: 12) {
@@ -174,37 +166,37 @@ struct DeadlineBarView: View {
         Text("Overdue (Full Width)")
           .font(.caption)
           .foregroundColor(.secondary)
-        DeadlineBarView(deadline: overdueDeadline)
+        DeadlineBarView(deadline: testDeadlines[0])
           .frame(height: 40)
 
         Text("Due Today")
           .font(.caption)
           .foregroundColor(.secondary)
-        DeadlineBarView(deadline: todayDeadline)
+        DeadlineBarView(deadline: testDeadlines[1])
           .frame(height: 40)
 
         Text("Due Tomorrow")
           .font(.caption)
           .foregroundColor(.secondary)
-        DeadlineBarView(deadline: tomorrowDeadline)
+        DeadlineBarView(deadline: testDeadlines[2])
           .frame(height: 40)
 
         Text("Due in 1 Week")
           .font(.caption)
           .foregroundColor(.secondary)
-        DeadlineBarView(deadline: weekDeadline)
+        DeadlineBarView(deadline: testDeadlines[3])
           .frame(height: 40)
 
         Text("Due in 25 Days (Title Outside)")
           .font(.caption)
           .foregroundColor(.secondary)
-        DeadlineBarView(deadline: distantDeadline)
+        DeadlineBarView(deadline: testDeadlines[4])
           .frame(height: 40)
 
         Text("Due in 35+ Days (Minimum Width, No Category)")
           .font(.caption)
           .foregroundColor(.secondary)
-        DeadlineBarView(deadline: veryDistantDeadline)
+        DeadlineBarView(deadline: testDeadlines[5])
           .frame(height: 40)
       }
     }

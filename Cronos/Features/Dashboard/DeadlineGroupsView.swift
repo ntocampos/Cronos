@@ -61,67 +61,6 @@ struct DeadlineGroupsView: View {
 }
 
 #Preview {
-  let container = try! ModelContainer(
-    for: Deadline.self,
-    Category.self,
-    configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-  )
-
-  // Create sample data immediately in the preview
-  let context = container.mainContext
-
-  // Create some sample categories
-  let workCategory = Category(
-    name: "Work",
-    colorHex: Category.DefaultColors.blue
-  )
-  let personalCategory = Category(
-    name: "Personal",
-    colorHex: Category.DefaultColors.green
-  )
-  let studyCategory = Category(
-    name: "Study",
-    colorHex: Category.DefaultColors.orange
-  )
-
-  // Insert categories into the context
-  context.insert(workCategory)
-  context.insert(personalCategory)
-  context.insert(studyCategory)
-
-  // Create sample deadlines
-  let sampleDeadlines = [
-    Deadline(
-      title: "Project Presentation",
-      notes: "Final presentation for Q4 project",
-      date: Calendar.current.date(byAdding: .day, value: 3, to: Date()) ?? Date(),
-      category: workCategory
-    ),
-    Deadline(
-      title: "Tax Filing",
-      notes: "Submit annual tax return",
-      date: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
-      category: personalCategory
-    ),
-    Deadline(
-      title: "Assignment Due",
-      notes: "SwiftUI advanced concepts essay",
-      date: Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date(),
-      category: studyCategory
-    ),
-    Deadline(
-      title: "Doctor Appointment",
-      notes: "Annual checkup",
-      date: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date(),
-      category: personalCategory
-    ),
-  ]
-
-  // Insert deadlines into the context
-  for deadline in sampleDeadlines {
-    context.insert(deadline)
-  }
-
-  return DeadlineGroupsView()
-    .modelContainer(container)
+  DeadlineGroupsView()
+    .modelContainer(.preview)
 }

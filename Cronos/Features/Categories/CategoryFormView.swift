@@ -114,13 +114,11 @@ struct CategoryFormView: View {
 
 #Preview("Add Category") {
   CategoryFormView()
-    .modelContainer(for: [Category.self, Deadline.self], inMemory: true)
+    .modelContainer(.emptyPreview)
 }
 
 #Preview("Edit Category") {
-  let container = try! ModelContainer(
-    for: Category.self, Deadline.self,
-    configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+  let container = ModelContainer.emptyPreview
   let category = Category(name: "Work", colorHex: Category.DefaultColors.blue)
   container.mainContext.insert(category)
 

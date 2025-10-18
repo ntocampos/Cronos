@@ -70,42 +70,9 @@ struct DeadlineListView: View {
 }
 
 #Preview {
-  @Previewable @State var container = try! ModelContainer(for: Deadline.self, Category.self)
+  let sampleDeadlines = SampleData.getDeadlines()
 
-  // Create some sample categories
-  let workCategory = Category(name: "Work", colorHex: Category.DefaultColors.blue)
-  let personalCategory = Category(name: "Personal", colorHex: Category.DefaultColors.green)
-  let studyCategory = Category(name: "Study", colorHex: Category.DefaultColors.orange)
-
-  // Create sample deadlines
-  let sampleDeadlines = [
-    Deadline(
-      title: "Project Presentation",
-      notes: "Final presentation for Q4 project",
-      date: Calendar.current.date(byAdding: .day, value: 3, to: Date()) ?? Date(),
-      category: workCategory
-    ),
-    Deadline(
-      title: "Tax Filing",
-      notes: "Submit annual tax return",
-      date: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
-      category: personalCategory
-    ),
-    Deadline(
-      title: "Assignment Due",
-      notes: "SwiftUI advanced concepts essay",
-      date: Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date(),
-      category: studyCategory
-    ),
-    Deadline(
-      title: "Doctor Appointment",
-      notes: "Annual checkup",
-      date: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date(),
-      category: personalCategory
-    ),
-  ]
-
-  VStack(spacing: 20) {
+  return VStack(spacing: 20) {
     DeadlineListView(
       deadlines: Array(sampleDeadlines.prefix(2)),
       onEdit: { _ in print("Edit tapped") },
@@ -119,5 +86,4 @@ struct DeadlineListView: View {
       sectionTitle: "All Deadlines"
     )
   }
-  .modelContainer(container)
 }
