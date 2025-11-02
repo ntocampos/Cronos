@@ -27,58 +27,80 @@ struct DeadlineBarView: View {
     return min(1.0, width)
   }
 
-  private var shouldShowTitleOutside: Bool {
-    // Show title outside if bar is narrower than 30% of the screen
-    return barWidth < 0.3
-  }
-
   private var barColor: Color {
     return deadline.category?.color ?? .gray
   }
 
-  private var textColor: Color {
-    // Determine if the category color is light or dark to choose contrasting text color
-    let categoryColor = deadline.category?.color ?? .gray
-
-    // For simplicity, we'll use white for darker colors and black for lighter ones
-    // You might want to implement a more sophisticated contrast calculation
-    if categoryColor == .yellow || categoryColor == .white {
-      return .black
-    } else {
-      return .white
-    }
-  }
-
-  private var deadlineTitle: some View {
-    Text(deadline.title)
-      .font(.subheadline)
-      .fontWeight(.semibold)
-      .lineLimit(1)
-      .padding(.trailing, 8)
-  }
-
   var body: some View {
-    HStack {
+    ZStack(alignment: .topLeading) {
+      // White background
+      RoundedRectangle(cornerRadius: 16)
+        .fill(Color(.systemBackground))
+        .shadow(color: .gray.opacity(0.5), radius: 8)
+
+      // Colored middle view
       GeometryReader { geometry in
-        HStack {
-          Spacer(minLength: 0)
-
-          if shouldShowTitleOutside {
-            deadlineTitle
-              .foregroundColor(.primary)
-          }
-
-          RoundedRectangle(cornerRadius: 8)
-            .fill(barColor)
+        HStack(spacing: 0) {
+          Spacer(minLength: 0)  // Pushes the rectangle to the right
+          RoundedRectangle(cornerRadius: 16)
+            .fill(barColor.opacity(0.3))
             .frame(width: geometry.size.width * barWidth)
-            .overlay(
-              shouldShowTitleOutside
-                ? nil
-                : deadlineTitle.foregroundColor(textColor),
-              alignment: .center
-            )
         }
       }
+
+      // Content
+      HStack {
+        VStack(alignment: .leading) {
+          Text(deadline.title)
+            .font(.headline)
+            .fontWeight(.semibold)
+            .lineLimit(1)
+            .padding(.trailing, 8)
+
+          if let notes = deadline.notes, !notes.isEmpty {
+            Text(notes)
+              .font(.subheadline)
+              .foregroundColor(Color(.secondaryLabel))
+              .lineLimit(1)
+              .padding(.trailing, 8)
+          }
+
+          if let category = deadline.category {
+            Text(category.name)
+              .font(.caption)
+              .fontWeight(.semibold)
+              .foregroundColor(barColor)
+              .padding(6)
+              .background {
+                RoundedRectangle(cornerRadius: 8)
+                  .fill(barColor.opacity(0.2))
+
+              }
+          }
+        }
+
+        Spacer()
+
+        VStack(alignment: .leading) {
+          HStack(alignment: .center) {
+            if let daysUntil = deadline.daysUntil, daysUntil > 0 {
+              Text(deadline.daysUntilText)
+                .font(.caption2)
+                .fontWeight(.medium)
+                .foregroundColor(barColor)
+            }
+
+            Image(systemName: "chevron.right")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 12, height: 12)
+              .foregroundStyle(barColor)
+          }
+          .padding(.vertical, 6)
+          Spacer()
+        }
+      }
+      .padding()
     }
   }
 }
@@ -133,7 +155,8 @@ struct DeadlineBarView: View {
     Deadline(
       title: "Long Term Project Review and Final Presentation",
       notes: "This should show title outside the bar",
-      date: Date().addingTimeInterval(86400 * 25),  // 25 days (should be narrow)
+      date: Date()
+        .addingTimeInterval(86400 * 25),  // 25 days (should be narrow)
       category: studyCategory
     ),
     Deadline(
@@ -156,7 +179,7 @@ struct DeadlineBarView: View {
   }
 
   return ScrollView {
-    VStack(spacing: 12) {
+    VStack(alignment: .leading, spacing: 12) {
       Text("DeadlineBarView Preview")
         .font(.title2)
         .bold()
@@ -167,37 +190,31 @@ struct DeadlineBarView: View {
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: testDeadlines[0])
-          .frame(height: 40)
 
         Text("Due Today")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: testDeadlines[1])
-          .frame(height: 40)
 
         Text("Due Tomorrow")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: testDeadlines[2])
-          .frame(height: 40)
 
         Text("Due in 1 Week")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: testDeadlines[3])
-          .frame(height: 40)
 
         Text("Due in 25 Days (Title Outside)")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: testDeadlines[4])
-          .frame(height: 40)
 
         Text("Due in 35+ Days (Minimum Width, No Category)")
           .font(.caption)
           .foregroundColor(.secondary)
         DeadlineBarView(deadline: testDeadlines[5])
-          .frame(height: 40)
       }
     }
     .padding()

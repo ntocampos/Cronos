@@ -34,4 +34,11 @@ final class Deadline: Identifiable {
     let components = calendar.dateComponents([.day], from: Date(), to: date)
     return components.day
   }
+
+  var daysUntilText: String {
+    guard let daysUntil = daysUntil else { return "Unknown" }
+    if daysUntil == 0 { return "Today" }
+    if daysUntil == 1 { return "Tomorrow" }
+    return "\(daysUntil) day\(daysUntil == 1 ? "" : "s")"
+  }
 }
