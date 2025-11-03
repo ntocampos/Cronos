@@ -16,7 +16,7 @@ struct DeadlineBarView: View {
 
     // Inverse proportionality - closer deadlines get wider bars
     let maxDays: Double = 30
-    let minWidth: Double = 0.1  // Minimum 10% width
+    let minWidth: Double = 0.05  // Minimum 20% width
 
     if daysUntil <= 0 {
       return 1.0  // Full width for overdue
@@ -27,7 +27,7 @@ struct DeadlineBarView: View {
     return min(1.0, width)
   }
 
-  private var barColor: Color {
+  private var categoryColor: Color {
     return deadline.category?.color ?? .gray
   }
 
@@ -36,14 +36,14 @@ struct DeadlineBarView: View {
       // White background
       RoundedRectangle(cornerRadius: 16)
         .fill(Color(.systemBackground))
-        .shadow(color: .gray.opacity(0.5), radius: 8)
+        .shadow(radius: 8)
 
       // Colored middle view
       GeometryReader { geometry in
         HStack(spacing: 0) {
           Spacer(minLength: 0)  // Pushes the rectangle to the right
           RoundedRectangle(cornerRadius: 16)
-            .fill(barColor.opacity(0.3))
+            .fill(categoryColor.opacity(0.3))
             .frame(width: geometry.size.width * barWidth)
         }
       }
@@ -57,23 +57,22 @@ struct DeadlineBarView: View {
             .lineLimit(1)
             .padding(.trailing, 8)
 
-          if let notes = deadline.notes, !notes.isEmpty {
-            Text(notes)
-              .font(.subheadline)
-              .foregroundColor(Color(.secondaryLabel))
-              .lineLimit(1)
-              .padding(.trailing, 8)
-          }
+          Text(deadline.notes ?? "No description")
+            .font(.subheadline)
+            .foregroundColor(Color(.secondaryLabel))
+            .lineLimit(1)
+            .padding(.trailing, 8)
+            .opacity(deadline.notes == nil ? 0 : 1)
 
           if let category = deadline.category {
             Text(category.name)
               .font(.caption)
               .fontWeight(.semibold)
-              .foregroundColor(barColor)
+              .foregroundColor(categoryColor)
               .padding(6)
               .background {
                 RoundedRectangle(cornerRadius: 8)
-                  .fill(barColor.opacity(0.2))
+                  .fill(categoryColor.opacity(0.2))
 
               }
           }
@@ -87,14 +86,14 @@ struct DeadlineBarView: View {
               Text(deadline.daysUntilText)
                 .font(.caption2)
                 .fontWeight(.medium)
-                .foregroundColor(barColor)
+                .foregroundColor(categoryColor)
             }
 
             Image(systemName: "chevron.right")
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 12, height: 12)
-              .foregroundStyle(barColor)
+              .foregroundStyle(categoryColor)
           }
           .padding(.vertical, 6)
           Spacer()
@@ -102,6 +101,8 @@ struct DeadlineBarView: View {
       }
       .padding()
     }
+    .clipShape(RoundedRectangle(cornerRadius: 16))
+    .border(Color(.systemBackground), width: 1)
   }
 }
 
