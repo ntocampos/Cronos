@@ -37,6 +37,11 @@ struct DashboardView: View {
           .presentationDetents([.large])
           .presentationDragIndicator(.visible)
       }
+      .sheet(item: $deadlineToEdit) { deadline in
+        DeadlineFormView(deadline: deadline)
+          .presentationDetents([.large])
+          .presentationDragIndicator(.visible)
+      }
       .overlay {
         if deadlines.isEmpty {
           ContentUnavailableView(
