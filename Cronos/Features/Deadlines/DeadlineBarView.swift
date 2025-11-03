@@ -63,19 +63,17 @@ struct DeadlineBarView: View {
             .padding(.trailing, 8)
             .opacity(deadline.notes == nil ? 0 : 1)
 
-          if let category = deadline.category {
-            Text(category.name)
-              .font(.caption2)
-              .fontWeight(.medium)
-              .foregroundColor(categoryColor)
-              .padding(.horizontal, 8)
-              .padding(.vertical, 4)
-              .background {
-                RoundedRectangle(cornerRadius: 6)
-                  .fill(categoryColor.opacity(0.2))
-
-              }
-          }
+          Text(deadline.category?.name ?? "No category")
+            .font(.caption2)
+            .fontWeight(.medium)
+            .foregroundColor(categoryColor)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background {
+              RoundedRectangle(cornerRadius: 6)
+                .fill(categoryColor.opacity(0.2))
+            }
+            .opacity(deadline.category == nil ? 0 : 1)
         }
 
         Spacer()
