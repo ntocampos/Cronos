@@ -24,12 +24,10 @@ struct DeadlineListView: View {
   }
 
   var body: some View {
-    VStack(spacing: 8) {
+    List {
       ForEach(deadlines) { deadline in
         DeadlineBarView(deadline: deadline)
-          .listRowInsets(
-            EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16)
-          )
+          .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
           .listRowBackground(Color.clear)
           .listRowSeparator(.hidden)
           .swipeActions(edge: .trailing, allowsFullSwipe: false) {

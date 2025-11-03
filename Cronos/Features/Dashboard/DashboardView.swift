@@ -16,16 +16,15 @@ struct DashboardView: View {
   @State private var deadlineToEdit: Deadline?
 
   var body: some View {
-    NavigationView {
-      ScrollView {
-        DeadlineListView(
-          deadlines: deadlines,
-          onEdit: editDeadline,
-          onDelete: deleteDeadline
-        )
-      }
-      .padding()
+    NavigationStack {
+      DeadlineListView(
+        deadlines: deadlines,
+        onEdit: editDeadline,
+        onDelete: deleteDeadline
+      )
+      .listStyle(.plain)
       .navigationTitle("Dashboard")
+      .navigationBarTitleDisplayMode(.large)
       .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(action: { showingAddDeadline = true }) {
