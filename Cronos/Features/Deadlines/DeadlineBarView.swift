@@ -16,7 +16,7 @@ struct DeadlineBarView: View {
 
     // Inverse proportionality - closer deadlines get wider bars
     let maxDays: Double = 30
-    let minWidth: Double = 0.05  // Minimum 20% width
+    let minWidth: Double = 0.04  // Minimum 20% width
 
     if daysUntil <= 0 {
       return 1.0  // Full width for overdue
@@ -36,7 +36,6 @@ struct DeadlineBarView: View {
       // White background
       RoundedRectangle(cornerRadius: 16)
         .fill(Color(.systemBackground))
-        .shadow(radius: 8)
 
       // Colored middle view
       GeometryReader { geometry in
@@ -52,13 +51,13 @@ struct DeadlineBarView: View {
       HStack {
         VStack(alignment: .leading) {
           Text(deadline.title)
-            .font(.headline)
+            .font(.body)
             .fontWeight(.semibold)
             .lineLimit(1)
             .padding(.trailing, 8)
 
           Text(deadline.notes ?? "No description")
-            .font(.subheadline)
+            .font(.footnote)
             .foregroundColor(Color(.secondaryLabel))
             .lineLimit(1)
             .padding(.trailing, 8)
@@ -66,12 +65,13 @@ struct DeadlineBarView: View {
 
           if let category = deadline.category {
             Text(category.name)
-              .font(.caption)
-              .fontWeight(.semibold)
+              .font(.caption2)
+              .fontWeight(.medium)
               .foregroundColor(categoryColor)
-              .padding(6)
+              .padding(.horizontal, 8)
+              .padding(.vertical, 4)
               .background {
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 6)
                   .fill(categoryColor.opacity(0.2))
 
               }
@@ -101,8 +101,9 @@ struct DeadlineBarView: View {
       }
       .padding()
     }
-    .clipShape(RoundedRectangle(cornerRadius: 16))
-    .border(Color(.systemBackground), width: 1)
+    .clipShape(
+      RoundedRectangle(cornerRadius: 16)
+    )
   }
 }
 

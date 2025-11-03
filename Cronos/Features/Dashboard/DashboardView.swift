@@ -11,41 +11,58 @@ import SwiftUI
 struct DashboardView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
+
   @State private var showingAddDeadline = false
+  @State private var deadlineToEdit: Deadline?
 
   var body: some View {
     NavigationView {
-      DeadlineGroupsView()
-        .navigationTitle("Dashboard")
-        .toolbar {
-          ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: { showingAddDeadline = true }) {
-              Label("Add Deadline", systemImage: "plus")
-            }
+      ScrollView {
+        DeadlineListView(
+          deadlines: deadlines,
+          onEdit: editDeadline,
+          onDelete: deleteDeadline
+        )
+      }
+      .padding()
+      .navigationTitle("Dashboard")
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button(action: { showingAddDeadline = true }) {
+            Label("Add Deadline", systemImage: "plus")
           }
         }
-        .sheet(isPresented: $showingAddDeadline) {
-          DeadlineFormView()
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
+      }
+      .sheet(isPresented: $showingAddDeadline) {
+        DeadlineFormView()
+          .presentationDetents([.large])
+          .presentationDragIndicator(.visible)
+      }
+      .overlay {
+        if deadlines.isEmpty {
+          ContentUnavailableView(
+            "No Deadlines",
+            systemImage: "calendar",
+            description: Text("Add your first deadline to get started")
+          )
         }
-        .overlay {
-          if deadlines.isEmpty {
-            ContentUnavailableView(
-              "No Deadlines",
-              systemImage: "calendar",
-              description: Text("Add your first deadline to get started")
-            )
-          }
-        }
+      }
+    }
+  }
+
+  private func editDeadline(_ deadline: Deadline) {
+    deadlineToEdit = deadline
+  }
+
+  private func deleteDeadline(_ deadline: Deadline) {
+    withAnimation {
+      modelContext.delete(deadline)
     }
   }
 
 }
 
 #Preview {
-  NavigationView {
-    DashboardView()
-  }
-  .modelContainer(for: [Deadline.self, Category.self], inMemory: true)
+  DashboardView()
+    .modelContainer(.preview)
 }
