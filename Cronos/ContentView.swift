@@ -16,6 +16,11 @@ struct ContentView: View {
           Label("Deadlines", systemImage: "chart.bar.fill")
         }
 
+      GroupsView()
+        .tabItem {
+          Label("Groups", systemImage: "rectangle.3.group")
+        }
+
       CategoriesView()
         .tabItem {
           Label("Categories", systemImage: "folder.fill")

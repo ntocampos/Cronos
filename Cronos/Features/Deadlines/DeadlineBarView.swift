@@ -10,12 +10,13 @@ import SwiftUI
 
 struct DeadlineBarView: View {
   let deadline: Deadline
+  var maxDaysReference: Double = 30
 
   private var barWidth: Double {
     guard let daysUntil = deadline.daysUntil else { return 1.0 }
 
     // Inverse proportionality - closer deadlines get wider bars
-    let maxDays: Double = 30
+    let maxDays: Double = maxDaysReference
     let minWidth: Double = 0.04  // Minimum 20% width
 
     if daysUntil <= 0 {
