@@ -17,12 +17,18 @@ struct DashboardView: View {
 
   var body: some View {
     NavigationStack {
-      DeadlineListView(
-        deadlines: deadlines,
-        onEdit: editDeadline,
-        onDelete: deleteDeadline
-      )
-      .listStyle(.plain)
+      ZStack {
+        AnimatedBlobGradientView()
+          .ignoresSafeArea()
+
+        DeadlineListView(
+          deadlines: deadlines,
+          onEdit: editDeadline,
+          onDelete: deleteDeadline
+        )
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+      }
       .navigationTitle("Dashboard")
       .navigationBarTitleDisplayMode(.large)
       .toolbar {

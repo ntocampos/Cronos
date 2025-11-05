@@ -55,18 +55,15 @@ struct DeadlineListView: View {
 #Preview {
   let sampleDeadlines = SampleData.getDeadlines()
 
-  return List {
-    DeadlineListView(
-      deadlines: Array(sampleDeadlines.prefix(2)),
-      onEdit: { _ in print("Edit tapped") },
-      onDelete: { _ in print("Delete tapped") }
-    )
+  DeadlineListView(
+    deadlines: Array(sampleDeadlines.prefix(2)),
+    onEdit: { _ in print("Edit tapped") },
+    onDelete: { _ in print("Delete tapped") }
+  )
 
-    DeadlineListView(
-      deadlines: Array(sampleDeadlines.suffix(2)),
-      onEdit: { _ in print("Edit tapped") },
-      onDelete: { _ in print("Delete tapped") },
-    )
-  }
-  .listStyle(.plain)
+  DeadlineListView(
+    deadlines: Array(sampleDeadlines.suffix(2)),
+    onEdit: { _ in print("Edit tapped") },
+    onDelete: { _ in print("Delete tapped") },
+  )
 }

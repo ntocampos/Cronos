@@ -16,40 +16,46 @@ struct CategoriesView: View {
 
   var body: some View {
     NavigationView {
-      List {
-        ForEach(categories) { category in
-          CategoryRowView(category: category)
-            .onTapGesture {
-              categoryToEdit = category
-            }
+      ZStack {
+        AnimatedBlobGradientView()
+          .ignoresSafeArea()
+
+        List {
+          ForEach(categories) { category in
+            CategoryRowView(category: category)
+              .onTapGesture {
+                categoryToEdit = category
+              }
+          }
+          .onDelete(perform: deleteCategories)
         }
-        .onDelete(perform: deleteCategories)
-      }
-      .navigationTitle("Categories")
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button(action: { showingAddCategory = true }) {
-            Label("Add Category", systemImage: "plus")
+        .scrollContentBackground(.hidden)
+        .navigationTitle("Categories")
+        .toolbar {
+          ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: { showingAddCategory = true }) {
+              Label("Add Category", systemImage: "plus")
+            }
           }
         }
-      }
-      .sheet(isPresented: $showingAddCategory) {
-        CategoryFormView()
-          .presentationDetents([.medium, .large])
-          .presentationDragIndicator(.visible)
-      }
-      .sheet(item: $categoryToEdit) { category in
-        CategoryFormView(category: category)
-          .presentationDetents([.medium, .large])
-          .presentationDragIndicator(.visible)
-      }
-      .overlay {
-        if categories.isEmpty {
-          ContentUnavailableView(
-            "No Categories",
-            systemImage: "folder",
-            description: Text("Add categories to organize your deadlines")
-          )
+        .sheet(isPresented: $showingAddCategory) {
+          CategoryFormView()
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $categoryToEdit) { category in
+          CategoryFormView(category: category)
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+        .overlay {
+          if categories.isEmpty {
+            ContentUnavailableView(
+              "No Categories",
+              systemImage: "folder",
+              description: Text("Add categories to organize your deadlines")
+            )
+          }
         }
       }
     }

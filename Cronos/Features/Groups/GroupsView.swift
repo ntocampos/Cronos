@@ -22,62 +22,68 @@ struct GroupsView: View {
 
   var body: some View {
     NavigationStack {
-      VStack(spacing: 0) {
-        // Picker for grouping mode
-        Picker("Group by", selection: $selectedGroupingMode) {
-          Text("Category").tag(GroupingMode.byCategory)
-          Text("Timeframe").tag(GroupingMode.byTimeframe)
-        }
-        .pickerStyle(.segmented)
-        .padding()
+      ZStack {
+        AnimatedBlobGradientView()
+          .ignoresSafeArea()
 
-        // Grouped list
-        if groupedDeadlines.isEmpty {
-          ContentUnavailableView(
-            "No Deadlines",
-            systemImage: "calendar",
-            description: Text("Add your first deadline to get started")
-          )
-        } else {
-          List {
-            ForEach(groupedDeadlines) { group in
-              Section {
-                ForEach(group.deadlines) { deadline in
-                  DeadlineBarView(
-                    deadline: deadline,
-                    maxDaysReference: group.maxDaysReference ?? 30
-                  )
-                  .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                  .listRowBackground(Color.clear)
-                  .listRowSeparator(.hidden)
-                  .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(action: {
-                      editDeadline(deadline)
-                    }) {
-                      Image(systemName: "pencil")
-                    }
-                    .tint(.blue)
+        VStack(spacing: 0) {
+          // Picker for grouping mode
+          Picker("Group by", selection: $selectedGroupingMode) {
+            Text("Category").tag(GroupingMode.byCategory)
+            Text("Timeframe").tag(GroupingMode.byTimeframe)
+          }
+          .pickerStyle(.segmented)
+          .padding()
 
-                    Button(
-                      role: .destructive,
-                      action: {
-                        deleteDeadline(deadline)
+          // Grouped list
+          if groupedDeadlines.isEmpty {
+            ContentUnavailableView(
+              "No Deadlines",
+              systemImage: "calendar",
+              description: Text("Add your first deadline to get started")
+            )
+          } else {
+            List {
+              ForEach(groupedDeadlines) { group in
+                Section {
+                  ForEach(group.deadlines) { deadline in
+                    DeadlineBarView(
+                      deadline: deadline,
+                      maxDaysReference: group.maxDaysReference ?? 30
+                    )
+                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                      Button(action: {
+                        editDeadline(deadline)
+                      }) {
+                        Image(systemName: "pencil")
                       }
-                    ) {
-                      Image(systemName: "trash")
+                      .tint(.blue)
+
+                      Button(
+                        role: .destructive,
+                        action: {
+                          deleteDeadline(deadline)
+                        }
+                      ) {
+                        Image(systemName: "trash")
+                      }
                     }
                   }
+                } header: {
+                  GroupHeaderView(
+                    title: group.title,
+                    count: group.deadlines.count,
+                    color: group.color
+                  )
                 }
-              } header: {
-                GroupHeaderView(
-                  title: group.title,
-                  count: group.deadlines.count,
-                  color: group.color
-                )
               }
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
           }
-          .listStyle(.plain)
         }
       }
       .navigationTitle("Groups")
