@@ -103,6 +103,7 @@ struct DeadlineBarView: View {
     .clipShape(
       RoundedRectangle(cornerRadius: 16)
     )
+    .shadow(color: Color.primary.opacity(0.1), radius: 8, x: 0, y: 2)
   }
 }
 
