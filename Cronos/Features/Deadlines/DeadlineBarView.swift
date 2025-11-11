@@ -11,7 +11,7 @@ import SwiftUI
 struct DeadlineBarView: View {
   let deadline: Deadline
   var maxDaysReference: Double = 30
-  var internalPadding: CGFloat = 2
+  var internalPadding: CGFloat = 4
 
   private let outerCornerRadius: CGFloat = 16
 
@@ -47,19 +47,24 @@ struct DeadlineBarView: View {
     ZStack(alignment: .topLeading) {
       // White background
       RoundedRectangle(cornerRadius: outerCornerRadius)
-        .fill(Color(.systemBackground))
+        .fill(Color(.secondarySystemFill).opacity(0.3))
+        .glassEffect(in: .rect(cornerRadius: outerCornerRadius))
 
       // Colored middle view
       GeometryReader { geometry in
         let availableWidth = geometry.size.width - (2 * internalPadding)
         let calculatedWidth = availableWidth * barWidth
-        let finalWidth = max(minimumColoredWidth, min(availableWidth, calculatedWidth))
+        let finalWidth = max(
+          minimumColoredWidth,
+          min(availableWidth, calculatedWidth)
+        )
 
         HStack(spacing: 0) {
           Spacer(minLength: 0)  // Pushes the rectangle to the right
           RoundedRectangle(cornerRadius: innerCornerRadius)
             .fill(categoryColor.opacity(0.3))
             .frame(width: finalWidth)
+            .glassEffect(in: .rect(cornerRadius: innerCornerRadius))
         }
         .padding(internalPadding)
       }
@@ -86,11 +91,7 @@ struct DeadlineBarView: View {
             .foregroundColor(categoryColor)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background {
-              RoundedRectangle(cornerRadius: 6)
-                .fill(categoryColor.opacity(0.2))
-            }
-            .opacity(deadline.category == nil ? 0 : 1)
+            .glassEffect()
         }
 
         Spacer()
@@ -167,7 +168,7 @@ struct DeadlineBarView: View {
     Deadline(
       title: "Team Meeting Preparation",
       notes: "Medium urgency",
-      date: Date().addingTimeInterval(86400 * 7),  // 1 week
+      date: Date().addingTimeInterval(86400 * 5),  // 1 week
       category: personalCategory
     ),
     Deadline(
