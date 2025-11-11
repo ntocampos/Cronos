@@ -23,9 +23,6 @@ struct GroupsView: View {
   var body: some View {
     NavigationStack {
       ZStack {
-        AnimatedBlobGradientView()
-          .ignoresSafeArea()
-
         VStack(spacing: 0) {
           // Picker for grouping mode
           Picker("Group by", selection: $selectedGroupingMode) {
