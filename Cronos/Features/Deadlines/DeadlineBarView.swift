@@ -77,6 +77,7 @@ struct DeadlineBarView: View {
             .fontWeight(.semibold)
             .lineLimit(1)
             .padding(.trailing, 8)
+            .shadow(color: .primary.opacity(0.1), radius: 6)
 
           Text(deadline.notes ?? "No description")
             .font(.footnote)
@@ -89,9 +90,9 @@ struct DeadlineBarView: View {
             .font(.caption2)
             .fontWeight(.medium)
             .foregroundColor(categoryColor)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .glassEffect()
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .glassEffect(in: .rect(cornerRadius: 6))
         }
 
         Spacer()
