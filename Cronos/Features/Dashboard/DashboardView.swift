@@ -18,9 +18,6 @@ struct DashboardView: View {
   var body: some View {
     NavigationStack {
       ZStack {
-        AnimatedBlobGradientView()
-          .ignoresSafeArea()
-
         DeadlineListView(
           deadlines: deadlines,
           onEdit: editDeadline,

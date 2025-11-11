@@ -17,9 +17,6 @@ struct CategoriesView: View {
   var body: some View {
     NavigationView {
       ZStack {
-        AnimatedBlobGradientView()
-          .ignoresSafeArea()
-
         List {
           ForEach(categories) { category in
             CategoryRowView(category: category)
