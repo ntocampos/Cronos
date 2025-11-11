@@ -97,4 +97,5 @@ struct CategoriesView: View {
     CategoriesView()
   }
   .modelContainer(for: [Category.self, Deadline.self], inMemory: true)
+  .environmentObject(ThemeManager())
 }

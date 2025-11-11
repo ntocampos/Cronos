@@ -9,6 +9,9 @@ import SwiftData
 import SwiftUI
 
 struct DeadlineBarView: View {
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
+
   let deadline: Deadline
   var maxDaysReference: Double = 30
   var internalPadding: CGFloat = 4
@@ -26,28 +29,32 @@ struct DeadlineBarView: View {
   private var barWidth: Double {
     guard let daysUntil = deadline.daysUntil else { return 1.0 }
 
-    // Inverse proportionality - closer deadlines get wider bars
     let maxDays: Double = maxDaysReference
-    let minWidth: Double = 0.04  // Minimum 20% width
+    let minWidth: Double = 0.04
 
     if daysUntil <= 0 {
-      return 1.0  // Full width for overdue
+      return 1.0
     }
 
-    // Calculate inverse proportion: fewer days = wider bar
     let width = max(minWidth, 1.0 - (Double(daysUntil) / maxDays))
     return min(1.0, width)
   }
 
   private var categoryColor: Color {
-    return deadline.category?.color ?? .gray
+    guard let category = deadline.category else {
+      return themeManager.secondaryText(for: colorScheme)
+    }
+    return category.color(using: themeManager, for: colorScheme)
+  }
+
+  private var barBackgroundColor: Color {
+    return themeManager.secondaryBackground(for: colorScheme)
   }
 
   var body: some View {
     ZStack(alignment: .topLeading) {
-      // White background
       RoundedRectangle(cornerRadius: outerCornerRadius)
-        .fill(Color(.secondarySystemFill).opacity(0.3))
+        .fill(barBackgroundColor.opacity(0.3))
         .glassEffect(in: .rect(cornerRadius: outerCornerRadius))
 
       // Colored middle view
@@ -240,4 +247,5 @@ struct DeadlineBarView: View {
     .padding()
   }
   .modelContainer(container)
+  .environmentObject(ThemeManager())
 }

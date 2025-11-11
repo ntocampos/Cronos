@@ -11,9 +11,10 @@ import SwiftUI
 struct DeadlineFormView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.modelContext) private var modelContext
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
   @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
-  // Deadline being edited (nil for new deadline)
   let deadline: Deadline?
 
   @State private var title: String
@@ -21,7 +22,6 @@ struct DeadlineFormView: View {
   @State private var date: Date
   @State private var selectedCategory: Category?
 
-  // Computed properties
   private var isEditing: Bool { deadline != nil }
   private var navigationTitle: String { isEditing ? "Edit Deadline" : "Add Deadline" }
   private var saveButtonTitle: String { isEditing ? "Save" : "Add" }
@@ -76,7 +76,7 @@ struct DeadlineFormView: View {
               ForEach(categories) { category in
                 HStack {
                   Circle()
-                    .fill(category.color)
+                    .fill(category.color(using: themeManager, for: colorScheme))
                     .frame(width: 12, height: 12)
                   Text(category.name)
                 }
@@ -102,16 +102,16 @@ struct DeadlineFormView: View {
                 Spacer()
                 if daysUntil < 0 {
                   Text("Overdue")
-                    .foregroundColor(.red)
+                    .foregroundColor(themeManager.destructive(for: colorScheme))
                 } else if daysUntil == 0 {
                   Text("Today")
-                    .foregroundColor(.orange)
+                    .foregroundColor(themeManager.categoryColor(at: 3, for: colorScheme))
                 } else if daysUntil == 1 {
                   Text("Tomorrow")
-                    .foregroundColor(.blue)
+                    .foregroundColor(themeManager.accent(for: colorScheme))
                 } else {
                   Text("\(daysUntil) days")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(themeManager.secondaryText(for: colorScheme))
                 }
               }
             }
@@ -174,16 +174,16 @@ struct DeadlineFormView: View {
 
   return DeadlineFormView()
     .modelContainer(container)
+    .environmentObject(ThemeManager())
 }
 
 #Preview("Edit Deadline") {
   let container = ModelContainer.emptyPreview
-  // Add sample data
   let category = Category(name: "Work", colorHex: Category.DefaultColors.blue)
   let deadline = Deadline(
     title: "Submit Report",
     notes: "Quarterly financial report due to management",
-    date: Date().addingTimeInterval(86400 * 3),  // 3 days from now
+    date: Date().addingTimeInterval(86400 * 3),
     category: category
   )
   container.mainContext.insert(category)
@@ -191,4 +191,5 @@ struct DeadlineFormView: View {
 
   return DeadlineFormView(deadline: deadline)
     .modelContainer(container)
+    .environmentObject(ThemeManager())
 }

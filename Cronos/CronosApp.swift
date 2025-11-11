@@ -10,6 +10,8 @@ import SwiftUI
 
 @main
 struct CronosApp: App {
+  @StateObject private var themeManager = ThemeManager()
+
   var sharedModelContainer: ModelContainer = {
     let schema = Schema([
       Deadline.self,
@@ -33,6 +35,7 @@ struct CronosApp: App {
   var body: some Scene {
     WindowGroup {
       ContentView()
+        .environmentObject(themeManager)
     }
     .modelContainer(sharedModelContainer)
   }

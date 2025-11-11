@@ -9,6 +9,9 @@ import SwiftData
 import SwiftUI
 
 struct DeadlineListView: View {
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
+
   let deadlines: [Deadline]
   let categories: [Category]
   let allDeadlinesCount: Int
@@ -43,7 +46,7 @@ struct DeadlineListView: View {
       if let selectedCategory {
         FilterNoticeView(
           categoryName: selectedCategory.name,
-          categoryColor: selectedCategory.color
+          categoryColor: selectedCategory.color(using: themeManager, for: colorScheme)
         )
       }
 
@@ -58,7 +61,7 @@ struct DeadlineListView: View {
             }) {
               Image(systemName: "pencil")
             }
-            .tint(.blue)
+            .tint(themeManager.accent(for: colorScheme))
 
             Button(
               role: .destructive,
@@ -68,6 +71,7 @@ struct DeadlineListView: View {
             ) {
               Image(systemName: "trash")
             }
+            .tint(themeManager.destructive(for: colorScheme))
           }
       }
     }
@@ -94,4 +98,5 @@ struct DeadlineListView: View {
   )
   .listStyle(.plain)
   .modelContainer(container)
+  .environmentObject(ThemeManager())
 }

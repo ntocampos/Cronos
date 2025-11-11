@@ -11,16 +11,14 @@ import SwiftUI
 struct CategoryFormView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.modelContext) private var modelContext
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
 
-  // Category being edited (nil for new category)
   let category: Category?
 
   @State private var name: String
-  @State private var selectedColorHex: String
+  @State private var selectedColorIndex: Int
 
-  private let availableColors = Category.DefaultColors.all
-
-  // Computed properties
   private var isEditing: Bool { category != nil }
   private var navigationTitle: String { isEditing ? "Edit Category" : "Add Category" }
   private var saveButtonTitle: String { isEditing ? "Save" : "Add" }
@@ -28,7 +26,7 @@ struct CategoryFormView: View {
   init(category: Category? = nil) {
     self.category = category
     self._name = State(initialValue: category?.name ?? "")
-    self._selectedColorHex = State(initialValue: category?.colorHex ?? Category.DefaultColors.blue)
+    self._selectedColorIndex = State(initialValue: category?.colorIndex ?? 0)
   }
 
   var body: some View {
@@ -38,19 +36,19 @@ struct CategoryFormView: View {
           TextField("Category Name", text: $name)
         }
 
-        Section(header: Text("Color")) {
+        Section {
           LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
-            ForEach(availableColors, id: \.self) { colorHex in
+            ForEach(0..<10, id: \.self) { index in
               Button(action: {
-                selectedColorHex = colorHex
+                selectedColorIndex = index
               }) {
                 Circle()
-                  .fill(Color(hex: colorHex))
+                  .fill(themeManager.categoryColor(at: index, for: colorScheme))
                   .frame(width: 40, height: 40)
                   .overlay(
                     Circle()
                       .stroke(
-                        selectedColorHex == colorHex ? Color.primary : Color.clear,
+                        selectedColorIndex == index ? Color.primary : Color.clear,
                         lineWidth: 3
                       )
                   )
@@ -59,6 +57,11 @@ struct CategoryFormView: View {
             }
           }
           .padding(.vertical, 8)
+        } header: {
+          Text("Color")
+        } footer: {
+          Text("Colors are set by your current theme (\(themeManager.currentTheme.name))")
+            .font(.caption)
         }
 
         if isEditing {
@@ -99,11 +102,9 @@ struct CategoryFormView: View {
 
     withAnimation {
       if let existingCategory = category {
-        // Edit existing category
         existingCategory.name = trimmedName
-        existingCategory.colorHex = selectedColorHex
+        existingCategory.setColorIndex(selectedColorIndex)
       } else {
-        // Create new category at the end of the list
         let fetchDescriptor = FetchDescriptor<Category>(
           sortBy: [SortDescriptor(\.sortOrder, order: .reverse)]
         )
@@ -111,7 +112,7 @@ struct CategoryFormView: View {
         let maxSortOrder = (try? modelContext.fetch(fetchDescriptor).first?.sortOrder) ?? -1
         let newCategory = Category(
           name: trimmedName,
-          colorHex: selectedColorHex,
+          colorHex: Category.DefaultColors.classicHexValues[selectedColorIndex],
           sortOrder: maxSortOrder + 1
         )
         modelContext.insert(newCategory)
@@ -124,6 +125,7 @@ struct CategoryFormView: View {
 #Preview("Add Category") {
   CategoryFormView()
     .modelContainer(.emptyPreview)
+    .environmentObject(ThemeManager())
 }
 
 #Preview("Edit Category") {
@@ -133,4 +135,5 @@ struct CategoryFormView: View {
 
   return CategoryFormView(category: category)
     .modelContainer(container)
+    .environmentObject(ThemeManager())
 }

@@ -9,12 +9,15 @@ import SwiftData
 import SwiftUI
 
 struct CategoryRowView: View {
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
+
   let category: Category
 
   var body: some View {
     HStack {
       Circle()
-        .fill(category.color)
+        .fill(category.color(using: themeManager, for: colorScheme))
         .frame(width: 16, height: 16)
 
       VStack(alignment: .leading, spacing: 2) {
@@ -69,4 +72,5 @@ struct CategoryRowView: View {
   }
   .padding()
   .modelContainer(container)
+  .environmentObject(ThemeManager())
 }

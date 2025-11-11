@@ -8,31 +8,60 @@
 import SwiftUI
 
 extension Category {
-  /// Returns a SwiftUI Color from the stored HEX string
+  /// Returns the color index (0-9) for this category based on its stored hex value
+  var colorIndex: Int {
+    let normalizedHex = colorHex.uppercased()
+    if let index = DefaultColors.classicHexValues.firstIndex(where: {
+      $0.uppercased() == normalizedHex
+    }) {
+      return index
+    }
+    return 0
+  }
+
+  /// Returns a basic SwiftUI Color from the stored HEX (for legacy/service use)
   var color: Color {
     Color(hex: colorHex)
   }
 
-  /// Updates the category color from a SwiftUI Color
-  func setColor(_ color: Color) {
-    self.colorHex = color.toHex()
+  /// Returns a SwiftUI Color based on the current theme
+  @MainActor
+  func color(using themeManager: ThemeManager, for colorScheme: ColorScheme) -> Color {
+    return themeManager.categoryColor(at: colorIndex, for: colorScheme)
   }
 
-  /// Predefined category colors as HEX strings
-  enum DefaultColors {
-    static let blue = "#007AFF"
-    static let red = "#FF3B30"
-    static let green = "#34C759"
-    static let orange = "#FF9500"
-    static let yellow = "#FFCC00"
-    static let purple = "#AF52DE"
-    static let pink = "#FF2D92"
-    static let teal = "#5AC8FA"
-    static let indigo = "#5856D6"
-    static let mint = "#00C7BE"
+  /// Sets the category to use a specific theme color index (0-9)
+  func setColorIndex(_ index: Int) {
+    guard index >= 0 && index < DefaultColors.classicHexValues.count else { return }
+    self.colorHex = DefaultColors.classicHexValues[index]
+  }
 
-    static let all = [
-      blue, red, green, orange, yellow, purple, pink, teal, indigo, mint,
+  /// Predefined category colors (now using classic theme HEX values for backwards compatibility)
+  enum DefaultColors {
+    static let classicHexValues = [
+      "#007AFF",
+      "#FF3B30",
+      "#34C759",
+      "#FF9500",
+      "#FFCC00",
+      "#AF52DE",
+      "#FF2D92",
+      "#5AC8FA",
+      "#5856D6",
+      "#00C7BE",
     ]
+
+    static let blue = classicHexValues[0]
+    static let red = classicHexValues[1]
+    static let green = classicHexValues[2]
+    static let orange = classicHexValues[3]
+    static let yellow = classicHexValues[4]
+    static let purple = classicHexValues[5]
+    static let pink = classicHexValues[6]
+    static let teal = classicHexValues[7]
+    static let indigo = classicHexValues[8]
+    static let mint = classicHexValues[9]
+
+    static let all = classicHexValues
   }
 }

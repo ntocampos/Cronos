@@ -10,13 +10,50 @@ import SwiftUI
 
 struct SettingsView: View {
   @Environment(\.modelContext) private var modelContext
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
   @AppStorage("showNotifications") private var showNotifications = true
   @AppStorage("defaultReminderDays") private var defaultReminderDays = 3
   @State private var showingDeleteAlert = false
+  @State private var showingThemePicker = false
 
   var body: some View {
     NavigationView {
       Form {
+        Section(header: Text("Appearance")) {
+          Button(action: {
+            showingThemePicker = true
+          }) {
+            HStack {
+              Image(systemName: "paintpalette")
+                .foregroundColor(themeManager.accent(for: colorScheme))
+
+              VStack(alignment: .leading, spacing: 2) {
+                Text("Theme")
+                  .foregroundColor(.primary)
+
+                Text(themeManager.currentTheme.name)
+                  .font(.caption)
+                  .foregroundColor(.secondary)
+              }
+
+              Spacer()
+
+              HStack(spacing: 4) {
+                ForEach(0..<5, id: \.self) { index in
+                  Circle()
+                    .fill(themeManager.categoryColor(at: index, for: colorScheme))
+                    .frame(width: 16, height: 16)
+                }
+              }
+
+              Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+          }
+        }
+
         Section(header: Text("Notifications")) {
           Toggle("Enable Notifications", isOn: $showNotifications)
 
@@ -88,6 +125,9 @@ struct SettingsView: View {
         }
       }
       .navigationTitle("Settings")
+      .sheet(isPresented: $showingThemePicker) {
+        ThemePickerView()
+      }
       .alert("Delete All Data", isPresented: $showingDeleteAlert) {
         Button("Cancel", role: .cancel) {}
         Button("Delete", role: .destructive) {
@@ -116,4 +156,5 @@ struct SettingsView: View {
 #Preview {
   SettingsView()
     .modelContainer(for: [Deadline.self, Category.self], inMemory: true)
+    .environmentObject(ThemeManager())
 }

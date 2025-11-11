@@ -2,6 +2,9 @@ import SwiftData
 import SwiftUI
 
 struct CategoryFilterRow: View {
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
+
   let categories: [Category]
   let allDeadlinesCount: Int
   @Binding var selectedCategory: Category?
@@ -11,7 +14,8 @@ struct CategoryFilterRow: View {
       HStack(spacing: 12) {
         CategoryButton(
           name: "All",
-          color: .gray,
+          color: themeManager.secondaryText(for: colorScheme),
+          backgroundColor: themeManager.secondaryBackground(for: colorScheme),
           count: allDeadlinesCount,
           isSelected: selectedCategory == nil,
           action: { selectedCategory = nil }
@@ -20,7 +24,8 @@ struct CategoryFilterRow: View {
         ForEach(categories) { category in
           CategoryButton(
             name: category.name,
-            color: category.color,
+            color: category.color(using: themeManager, for: colorScheme),
+            backgroundColor: themeManager.secondaryBackground(for: colorScheme),
             count: category.deadlines.count,
             isSelected: selectedCategory?.id == category.id,
             action: { selectedCategory = category }
@@ -39,6 +44,7 @@ struct CategoryFilterRow: View {
 private struct CategoryButton: View {
   let name: String
   let color: Color
+  let backgroundColor: Color
   let count: Int
   let isSelected: Bool
   let action: () -> Void
@@ -65,7 +71,7 @@ private struct CategoryButton: View {
               .glassEffect(in: .capsule)
           } else {
             Capsule()
-              .fill(Color(.secondarySystemFill).opacity(0.3))
+              .fill(backgroundColor.opacity(0.3))
               .glassEffect(in: .capsule)
               .overlay(
                 Capsule()
@@ -101,4 +107,5 @@ private struct CategoryButton: View {
   }
   .listStyle(.plain)
   .modelContainer(container)
+  .environmentObject(ThemeManager())
 }

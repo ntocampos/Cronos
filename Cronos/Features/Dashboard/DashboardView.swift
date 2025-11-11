@@ -88,4 +88,5 @@ struct DashboardView: View {
 #Preview {
   DashboardView()
     .modelContainer(.preview)
+    .environmentObject(ThemeManager())
 }
