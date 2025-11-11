@@ -11,19 +11,26 @@ import SwiftUI
 struct DashboardView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
+
   @State private var showingAddDeadline = false
   @State private var deadlineToEdit: Deadline?
 
   var body: some View {
-    NavigationView {
-      DeadlineListView(
-        deadlines: deadlines,
-        onEdit: { deadline in
-          deadlineToEdit = deadline
-        },
-        onDelete: deleteDeadline
-      )
+    NavigationStack {
+      ZStack {
+        AnimatedBlobGradientView()
+          .ignoresSafeArea()
+
+        DeadlineListView(
+          deadlines: deadlines,
+          onEdit: editDeadline,
+          onDelete: deleteDeadline
+        )
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+      }
       .navigationTitle("Dashboard")
+      .navigationBarTitleDisplayMode(.large)
       .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(action: { showingAddDeadline = true }) {
@@ -53,16 +60,19 @@ struct DashboardView: View {
     }
   }
 
+  private func editDeadline(_ deadline: Deadline) {
+    deadlineToEdit = deadline
+  }
+
   private func deleteDeadline(_ deadline: Deadline) {
     withAnimation {
       modelContext.delete(deadline)
     }
   }
+
 }
 
 #Preview {
-  NavigationView {
-    DashboardView()
-  }
-  .modelContainer(for: [Deadline.self, Category.self], inMemory: true)
+  DashboardView()
+    .modelContainer(.preview)
 }

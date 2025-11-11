@@ -169,25 +169,15 @@ struct DeadlineFormView: View {
 }
 
 #Preview("Add Deadline") {
-  let container = try! ModelContainer(
-    for: Deadline.self, Category.self,
-    configurations: ModelConfiguration(isStoredInMemoryOnly: true))
-
-  // Add some sample categories
-  let workCategory = Category(name: "Work", colorHex: Category.DefaultColors.blue)
-  let personalCategory = Category(name: "Personal", colorHex: Category.DefaultColors.green)
-  container.mainContext.insert(workCategory)
-  container.mainContext.insert(personalCategory)
+  let container = ModelContainer.emptyPreview
+  SampleData.addSampleCategories(to: container.mainContext)
 
   return DeadlineFormView()
     .modelContainer(container)
 }
 
 #Preview("Edit Deadline") {
-  let container = try! ModelContainer(
-    for: Deadline.self, Category.self,
-    configurations: ModelConfiguration(isStoredInMemoryOnly: true))
-
+  let container = ModelContainer.emptyPreview
   // Add sample data
   let category = Category(name: "Work", colorHex: Category.DefaultColors.blue)
   let deadline = Deadline(
