@@ -6,6 +6,10 @@ enum Theme: String, CaseIterable, Identifiable {
   case monochrome
   case warmEarth
   case coolOcean
+  case neonNights
+  case sunsetBlaze
+  case tropicalParadise
+  case electricDream
 
   var id: String { rawValue }
 
@@ -16,6 +20,10 @@ enum Theme: String, CaseIterable, Identifiable {
     case .monochrome: return "Monochrome"
     case .warmEarth: return "Warm Earth"
     case .coolOcean: return "Cool Ocean"
+    case .neonNights: return "Neon Nights"
+    case .sunsetBlaze: return "Sunset Blaze"
+    case .tropicalParadise: return "Tropical Paradise"
+    case .electricDream: return "Electric Dream"
     }
   }
 
@@ -31,6 +39,14 @@ enum Theme: String, CaseIterable, Identifiable {
       return "Cozy, natural tones inspired by earth and autumn"
     case .coolOcean:
       return "Fresh, serene blues and teals for calm focus"
+    case .neonNights:
+      return "High-contrast neon colors with a cyberpunk aesthetic"
+    case .sunsetBlaze:
+      return "Vivid warm hues inspired by golden hour sunsets"
+    case .tropicalParadise:
+      return "Bright, saturated colors from tropical landscapes"
+    case .electricDream:
+      return "Bold electric blues, purples, and magentas"
     }
   }
 
@@ -156,6 +172,94 @@ enum Theme: String, CaseIterable, Identifiable {
         accent: Color(hex: "#4A8FE7"),
         destructive: Color(hex: "#7A9FBF")
       )
+
+    case .neonNights:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#00D9FF"),
+          Color(hex: "#FF006E"),
+          Color(hex: "#39FF14"),
+          Color(hex: "#FF9E00"),
+          Color(hex: "#FFFF00"),
+          Color(hex: "#BF40BF"),
+          Color(hex: "#FF10F0"),
+          Color(hex: "#00FFFF"),
+          Color(hex: "#8B00FF"),
+          Color(hex: "#00FFA3"),
+        ],
+        primaryBackground: Color(hex: "#0A0A0A"),
+        secondaryBackground: Color(hex: "#1A1A1A"),
+        primaryText: Color(hex: "#FFFFFF"),
+        secondaryText: Color(hex: "#B0B0B0"),
+        accent: Color(hex: "#00D9FF"),
+        destructive: Color(hex: "#FF006E")
+      )
+
+    case .sunsetBlaze:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#FF6B35"),
+          Color(hex: "#FF0054"),
+          Color(hex: "#FFB319"),
+          Color(hex: "#FF4E00"),
+          Color(hex: "#FFCC00"),
+          Color(hex: "#D946EF"),
+          Color(hex: "#FF007F"),
+          Color(hex: "#FF8C42"),
+          Color(hex: "#9D4EDD"),
+          Color(hex: "#FF5E78"),
+        ],
+        primaryBackground: Color(hex: "#FFF8F0"),
+        secondaryBackground: Color(hex: "#FFE8D6"),
+        primaryText: Color(hex: "#2D1B00"),
+        secondaryText: Color(hex: "#7D5A3B"),
+        accent: Color(hex: "#FF6B35"),
+        destructive: Color(hex: "#FF0054")
+      )
+
+    case .tropicalParadise:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#00B4D8"),
+          Color(hex: "#F72585"),
+          Color(hex: "#06FFA5"),
+          Color(hex: "#FF8500"),
+          Color(hex: "#FFDD00"),
+          Color(hex: "#B5179E"),
+          Color(hex: "#FF206E"),
+          Color(hex: "#48CAE4"),
+          Color(hex: "#7209B7"),
+          Color(hex: "#00F5D4"),
+        ],
+        primaryBackground: Color(hex: "#FFFEF7"),
+        secondaryBackground: Color(hex: "#F0FAFF"),
+        primaryText: Color(hex: "#001D3D"),
+        secondaryText: Color(hex: "#4A5568"),
+        accent: Color(hex: "#00B4D8"),
+        destructive: Color(hex: "#F72585")
+      )
+
+    case .electricDream:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#0096FF"),
+          Color(hex: "#D946EF"),
+          Color(hex: "#7C3AED"),
+          Color(hex: "#0EA5E9"),
+          Color(hex: "#06B6D4"),
+          Color(hex: "#A855F7"),
+          Color(hex: "#EC4899"),
+          Color(hex: "#3B82F6"),
+          Color(hex: "#8B5CF6"),
+          Color(hex: "#14B8A6"),
+        ],
+        primaryBackground: Color(hex: "#F8FAFF"),
+        secondaryBackground: Color(hex: "#EEF2FF"),
+        primaryText: Color(hex: "#1E1B4B"),
+        secondaryText: Color(hex: "#4C1D95"),
+        accent: Color(hex: "#0096FF"),
+        destructive: Color(hex: "#D946EF")
+      )
     }
   }
 
@@ -269,6 +373,94 @@ enum Theme: String, CaseIterable, Identifiable {
         secondaryText: Color(hex: "#7FA0B0"),
         accent: Color(hex: "#5A9FF7"),
         destructive: Color(hex: "#8AAFCF")
+      )
+
+    case .neonNights:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#00FFFF"),
+          Color(hex: "#FF1493"),
+          Color(hex: "#39FF14"),
+          Color(hex: "#FFB700"),
+          Color(hex: "#FFFF33"),
+          Color(hex: "#DA70D6"),
+          Color(hex: "#FF69B4"),
+          Color(hex: "#00E5FF"),
+          Color(hex: "#9D00FF"),
+          Color(hex: "#00FFB3"),
+        ],
+        primaryBackground: Color(hex: "#000000"),
+        secondaryBackground: Color(hex: "#0D0D0D"),
+        primaryText: Color(hex: "#FFFFFF"),
+        secondaryText: Color(hex: "#C0C0C0"),
+        accent: Color(hex: "#00FFFF"),
+        destructive: Color(hex: "#FF1493")
+      )
+
+    case .sunsetBlaze:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#FF8C61"),
+          Color(hex: "#FF3366"),
+          Color(hex: "#FFC947"),
+          Color(hex: "#FF6B35"),
+          Color(hex: "#FFD93D"),
+          Color(hex: "#E879F9"),
+          Color(hex: "#FF4D94"),
+          Color(hex: "#FFA566"),
+          Color(hex: "#B565F8"),
+          Color(hex: "#FF758F"),
+        ],
+        primaryBackground: Color(hex: "#1A0F00"),
+        secondaryBackground: Color(hex: "#2A1F10"),
+        primaryText: Color(hex: "#FFE8D6"),
+        secondaryText: Color(hex: "#C9A97A"),
+        accent: Color(hex: "#FF8C61"),
+        destructive: Color(hex: "#FF3366")
+      )
+
+    case .tropicalParadise:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#03DAC6"),
+          Color(hex: "#FF4A9E"),
+          Color(hex: "#1BFFBB"),
+          Color(hex: "#FFA033"),
+          Color(hex: "#FFEA00"),
+          Color(hex: "#CF6CCE"),
+          Color(hex: "#FF4081"),
+          Color(hex: "#90E0EF"),
+          Color(hex: "#9D4EDD"),
+          Color(hex: "#00F5D4"),
+        ],
+        primaryBackground: Color(hex: "#001219"),
+        secondaryBackground: Color(hex: "#051923"),
+        primaryText: Color(hex: "#F0F3F5"),
+        secondaryText: Color(hex: "#94A3B8"),
+        accent: Color(hex: "#03DAC6"),
+        destructive: Color(hex: "#FF4A9E")
+      )
+
+    case .electricDream:
+      return ThemeColors(
+        categoryColors: [
+          Color(hex: "#38BFFF"),
+          Color(hex: "#E879F9"),
+          Color(hex: "#9F7AEA"),
+          Color(hex: "#22D3EE"),
+          Color(hex: "#22D3EE"),
+          Color(hex: "#C084FC"),
+          Color(hex: "#F472B6"),
+          Color(hex: "#60A5FA"),
+          Color(hex: "#A78BFA"),
+          Color(hex: "#2DD4BF"),
+        ],
+        primaryBackground: Color(hex: "#0F0A1E"),
+        secondaryBackground: Color(hex: "#1E1533"),
+        primaryText: Color(hex: "#EEF2FF"),
+        secondaryText: Color(hex: "#A5B4FC"),
+        accent: Color(hex: "#38BFFF"),
+        destructive: Color(hex: "#E879F9")
       )
     }
   }
