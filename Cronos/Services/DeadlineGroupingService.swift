@@ -43,34 +43,49 @@ enum DeadlineGroupingService {
   // MARK: - Private Grouping Methods
 
   private static func groupByCategory(_ deadlines: [Deadline]) -> [DeadlineGroup] {
-    // Group deadlines by category
-    let grouped = Dictionary(grouping: deadlines) { deadline -> String in
-      deadline.category?.name ?? "Uncategorized"
+    // Group deadlines by category object (using UUID for unique grouping)
+    let grouped = Dictionary(grouping: deadlines) { deadline -> UUID? in
+      deadline.category?.id
     }
 
-    // Sort by category name alphabetically
-    let sortedGroups = grouped.keys.sorted()
+    // Separate uncategorized deadlines
+    let uncategorizedDeadlines = grouped[nil] ?? []
 
-    // Create DeadlineGroup objects
-    return sortedGroups.map { categoryName in
-      let groupDeadlines = grouped[categoryName] ?? []
-      let sortedDeadlines = groupDeadlines.sorted { $0.date < $1.date }
-
-      // Get category color (if not Uncategorized)
-      let color: Color?
-      if let category = groupDeadlines.first?.category {
-        color = category.color
-      } else {
-        color = nil
+    // Get all categories with deadlines and sort by sortOrder
+    let categorizedGroups =
+      grouped
+      .filter { $0.key != nil }
+      .compactMap { (categoryId, groupDeadlines) -> (Category, [Deadline])? in
+        guard let category = groupDeadlines.first?.category else { return nil }
+        return (category, groupDeadlines)
       }
+      .sorted { $0.0.sortOrder < $1.0.sortOrder }
 
+    // Create DeadlineGroup objects for categorized items
+    var groups = categorizedGroups.map { (category, groupDeadlines) in
+      let sortedDeadlines = groupDeadlines.sorted { $0.date < $1.date }
       return DeadlineGroup(
-        title: categoryName,
+        title: category.name,
         deadlines: sortedDeadlines,
-        color: color,
+        color: category.color,
         maxDaysReference: nil
       )
     }
+
+    // Add uncategorized group at the end if it has items
+    if !uncategorizedDeadlines.isEmpty {
+      let sortedDeadlines = uncategorizedDeadlines.sorted { $0.date < $1.date }
+      groups.append(
+        DeadlineGroup(
+          title: "Uncategorized",
+          deadlines: sortedDeadlines,
+          color: nil,
+          maxDaysReference: nil
+        )
+      )
+    }
+
+    return groups
   }
 
   private static func groupByTimeframe(_ deadlines: [Deadline]) -> [DeadlineGroup] {
