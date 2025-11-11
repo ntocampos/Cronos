@@ -118,8 +118,11 @@ struct DeadlineFormView: View {
           }
         }
       }
+      .scrollContentBackground(.hidden)
+      .background(themeManager.primaryBackground(for: colorScheme))
       .navigationTitle(navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
+      .tint(themeManager.accent(for: colorScheme))
       .toolbar {
         ToolbarItem(placement: .navigationBarLeading) {
           Button("Cancel") {

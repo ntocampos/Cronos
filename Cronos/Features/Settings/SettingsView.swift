@@ -94,9 +94,9 @@ struct SettingsView: View {
           }) {
             HStack {
               Image(systemName: "trash")
-                .foregroundColor(.red)
+                .foregroundColor(themeManager.destructive(for: colorScheme))
               Text("Delete All Data")
-                .foregroundColor(.red)
+                .foregroundColor(themeManager.destructive(for: colorScheme))
             }
           }
         }
@@ -105,6 +105,7 @@ struct SettingsView: View {
           Link(destination: URL(string: "mailto:support@cronos.app")!) {
             HStack {
               Image(systemName: "envelope")
+                .foregroundColor(themeManager.accent(for: colorScheme))
               Text("Contact Support")
             }
           }
@@ -112,6 +113,7 @@ struct SettingsView: View {
           Link(destination: URL(string: "https://cronos.app/privacy")!) {
             HStack {
               Image(systemName: "hand.raised")
+                .foregroundColor(themeManager.accent(for: colorScheme))
               Text("Privacy Policy")
             }
           }
@@ -119,12 +121,17 @@ struct SettingsView: View {
           Link(destination: URL(string: "https://cronos.app/terms")!) {
             HStack {
               Image(systemName: "doc.text")
+                .foregroundColor(themeManager.accent(for: colorScheme))
               Text("Terms of Service")
             }
           }
         }
       }
+      .scrollContentBackground(.hidden)
+      .background(themeManager.primaryBackground(for: colorScheme))
       .navigationTitle("Settings")
+      .navigationBarTitleDisplayMode(.large)
+      .tint(themeManager.accent(for: colorScheme))
       .sheet(isPresented: $showingThemePicker) {
         ThemePickerView()
       }
