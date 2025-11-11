@@ -11,15 +11,25 @@ import SwiftUI
 struct DashboardView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
+  @Query(sort: \Category.name, order: .forward) private var categories: [Category]
 
   @State private var showingAddDeadline = false
   @State private var deadlineToEdit: Deadline?
+  @State private var selectedCategory: Category?
+
+  private var filteredDeadlines: [Deadline] {
+    guard let selectedCategory else { return deadlines }
+    return deadlines.filter { $0.category?.id == selectedCategory.id }
+  }
 
   var body: some View {
     NavigationStack {
       ZStack {
         DeadlineListView(
-          deadlines: deadlines,
+          deadlines: filteredDeadlines,
+          categories: categories,
+          allDeadlinesCount: deadlines.count,
+          selectedCategory: $selectedCategory,
           onEdit: editDeadline,
           onDelete: deleteDeadline
         )
@@ -46,11 +56,17 @@ struct DashboardView: View {
           .presentationDragIndicator(.visible)
       }
       .overlay {
-        if deadlines.isEmpty {
+        if filteredDeadlines.isEmpty && selectedCategory == nil {
           ContentUnavailableView(
             "No Deadlines",
             systemImage: "calendar",
             description: Text("Add your first deadline to get started")
+          )
+        } else if filteredDeadlines.isEmpty && selectedCategory != nil {
+          ContentUnavailableView(
+            "No Items in This Category",
+            systemImage: "tray",
+            description: Text("Try selecting a different category or add a new deadline")
           )
         }
       }
