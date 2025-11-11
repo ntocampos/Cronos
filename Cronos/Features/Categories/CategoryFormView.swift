@@ -103,8 +103,17 @@ struct CategoryFormView: View {
         existingCategory.name = trimmedName
         existingCategory.colorHex = selectedColorHex
       } else {
-        // Create new category
-        let newCategory = Category(name: trimmedName, colorHex: selectedColorHex)
+        // Create new category at the end of the list
+        let fetchDescriptor = FetchDescriptor<Category>(
+          sortBy: [SortDescriptor(\.sortOrder, order: .reverse)]
+        )
+
+        let maxSortOrder = (try? modelContext.fetch(fetchDescriptor).first?.sortOrder) ?? -1
+        let newCategory = Category(
+          name: trimmedName,
+          colorHex: selectedColorHex,
+          sortOrder: maxSortOrder + 1
+        )
         modelContext.insert(newCategory)
       }
     }

@@ -351,10 +351,10 @@ When implementing grouping:
 
 ## Plan
 
-- Make plans very concise. Can sacrifice grammar over conciseness.
 - Ask about open questions if any.
+- Offer to save the plan in a markdown file if it's long so we can reference it later.
 
 ## Implementation
 
-- Always use modern Swift/SwiftUI/SwiftData patterns.
+- Always use modern Swift/SwiftUI/SwiftData patterns as of Nov 2025.
 - Use context7 if necessary to access documentations.

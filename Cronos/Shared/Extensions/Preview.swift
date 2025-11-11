@@ -39,19 +39,23 @@ struct SampleData {
     // Create sample categories
     let workCategory = Category(
       name: "Work",
-      colorHex: Category.DefaultColors.blue
+      colorHex: Category.DefaultColors.blue,
+      sortOrder: 0
     )
     let personalCategory = Category(
       name: "Personal",
-      colorHex: Category.DefaultColors.green
+      colorHex: Category.DefaultColors.green,
+      sortOrder: 1
     )
     let studyCategory = Category(
       name: "Study",
-      colorHex: Category.DefaultColors.orange
+      colorHex: Category.DefaultColors.orange,
+      sortOrder: 2
     )
     let urgentCategory = Category(
       name: "Urgent",
-      colorHex: Category.DefaultColors.red
+      colorHex: Category.DefaultColors.red,
+      sortOrder: 3
     )
 
     // Insert categories
@@ -80,12 +84,12 @@ struct SampleData {
   /// Creates sample categories only (useful for category-related previews)
   static func addSampleCategories(to context: ModelContext) {
     let categories = [
-      Category(name: "Work", colorHex: Category.DefaultColors.blue),
-      Category(name: "Personal", colorHex: Category.DefaultColors.green),
-      Category(name: "Study", colorHex: Category.DefaultColors.orange),
-      Category(name: "Urgent", colorHex: Category.DefaultColors.red),
-      Category(name: "Health", colorHex: Category.DefaultColors.purple),
-      Category(name: "Finance", colorHex: Category.DefaultColors.yellow),
+      Category(name: "Work", colorHex: Category.DefaultColors.blue, sortOrder: 0),
+      Category(name: "Personal", colorHex: Category.DefaultColors.green, sortOrder: 1),
+      Category(name: "Study", colorHex: Category.DefaultColors.orange, sortOrder: 2),
+      Category(name: "Urgent", colorHex: Category.DefaultColors.red, sortOrder: 3),
+      Category(name: "Health", colorHex: Category.DefaultColors.purple, sortOrder: 4),
+      Category(name: "Finance", colorHex: Category.DefaultColors.yellow, sortOrder: 5),
     ]
 
     for category in categories {
@@ -99,19 +103,23 @@ struct SampleData {
   static func getDeadlines() -> [Deadline] {
     let workCategory = Category(
       name: "Work",
-      colorHex: Category.DefaultColors.blue
+      colorHex: Category.DefaultColors.blue,
+      sortOrder: 0
     )
     let personalCategory = Category(
       name: "Personal",
-      colorHex: Category.DefaultColors.green
+      colorHex: Category.DefaultColors.green,
+      sortOrder: 1
     )
     let studyCategory = Category(
       name: "Study",
-      colorHex: Category.DefaultColors.orange
+      colorHex: Category.DefaultColors.orange,
+      sortOrder: 2
     )
     let urgentCategory = Category(
       name: "Urgent",
-      colorHex: Category.DefaultColors.red
+      colorHex: Category.DefaultColors.red,
+      sortOrder: 3
     )
 
     return createSampleDeadlines(
@@ -125,12 +133,12 @@ struct SampleData {
   /// Returns sample categories without inserting them into context
   static func getCategories() -> [Category] {
     return [
-      Category(name: "Work", colorHex: Category.DefaultColors.blue),
-      Category(name: "Personal", colorHex: Category.DefaultColors.green),
-      Category(name: "Study", colorHex: Category.DefaultColors.orange),
-      Category(name: "Urgent", colorHex: Category.DefaultColors.red),
-      Category(name: "Health", colorHex: Category.DefaultColors.purple),
-      Category(name: "Finance", colorHex: Category.DefaultColors.yellow),
+      Category(name: "Work", colorHex: Category.DefaultColors.blue, sortOrder: 0),
+      Category(name: "Personal", colorHex: Category.DefaultColors.green, sortOrder: 1),
+      Category(name: "Study", colorHex: Category.DefaultColors.orange, sortOrder: 2),
+      Category(name: "Urgent", colorHex: Category.DefaultColors.red, sortOrder: 3),
+      Category(name: "Health", colorHex: Category.DefaultColors.purple, sortOrder: 4),
+      Category(name: "Finance", colorHex: Category.DefaultColors.yellow, sortOrder: 5),
     ]
   }
 

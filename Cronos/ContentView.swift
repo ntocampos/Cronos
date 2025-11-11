@@ -9,6 +9,9 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+  @Environment(\.modelContext) private var modelContext
+  @State private var hasMigrated = false
+
   var body: some View {
     TabView {
       DashboardView()
@@ -30,6 +33,12 @@ struct ContentView: View {
         .tabItem {
           Label("Settings", systemImage: "gear")
         }
+    }
+    .onAppear {
+      if !hasMigrated {
+        CategorySortOrderMigration.migrateIfNeeded(modelContext: modelContext)
+        hasMigrated = true
+      }
     }
   }
 }

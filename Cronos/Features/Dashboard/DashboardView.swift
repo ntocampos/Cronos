@@ -11,7 +11,7 @@ import SwiftUI
 struct DashboardView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
-  @Query(sort: \Category.name, order: .forward) private var categories: [Category]
+  @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
   @State private var showingAddDeadline = false
   @State private var deadlineToEdit: Deadline?

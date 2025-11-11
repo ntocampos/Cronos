@@ -10,9 +10,10 @@ import SwiftUI
 
 struct CategoriesView: View {
   @Environment(\.modelContext) private var modelContext
-  @Query(sort: \Category.name, order: .forward) private var categories: [Category]
+  @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
   @State private var showingAddCategory = false
   @State private var categoryToEdit: Category?
+  @State private var editMode: EditMode = .inactive
 
   var body: some View {
     NavigationView {
@@ -21,14 +22,27 @@ struct CategoriesView: View {
           ForEach(categories) { category in
             CategoryRowView(category: category)
               .onTapGesture {
-                categoryToEdit = category
+                if editMode == .inactive {
+                  categoryToEdit = category
+                }
               }
           }
+          .onMove(perform: moveCategories)
           .onDelete(perform: deleteCategories)
         }
+        .environment(\.editMode, $editMode)
         .scrollContentBackground(.hidden)
         .navigationTitle("Categories")
         .toolbar {
+          ToolbarItem(placement: .navigationBarLeading) {
+            if !categories.isEmpty {
+              Button(editMode == .inactive ? "Edit" : "Done") {
+                withAnimation {
+                  editMode = editMode == .inactive ? .active : .inactive
+                }
+              }
+            }
+          }
           ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: { showingAddCategory = true }) {
               Label("Add Category", systemImage: "plus")
@@ -56,6 +70,17 @@ struct CategoriesView: View {
         }
       }
     }
+  }
+
+  private func moveCategories(from source: IndexSet, to destination: Int) {
+    var reorderedCategories = categories
+    reorderedCategories.move(fromOffsets: source, toOffset: destination)
+
+    for (index, category) in reorderedCategories.enumerated() {
+      category.sortOrder = index
+    }
+
+    try? modelContext.save()
   }
 
   private func deleteCategories(offsets: IndexSet) {

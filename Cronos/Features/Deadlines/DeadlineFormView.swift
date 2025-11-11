@@ -11,7 +11,7 @@ import SwiftUI
 struct DeadlineFormView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.modelContext) private var modelContext
-  @Query(sort: \Category.name, order: .forward) private var categories: [Category]
+  @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
   // Deadline being edited (nil for new deadline)
   let deadline: Deadline?
