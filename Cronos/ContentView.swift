@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ContentView: View {
   @Environment(\.modelContext) private var modelContext
+  @Environment(\.colorScheme) private var colorScheme
+  @EnvironmentObject private var themeManager: ThemeManager
   @State private var hasMigrated = false
 
   var body: some View {
@@ -34,6 +36,9 @@ struct ContentView: View {
           Label("Settings", systemImage: "gear")
         }
     }
+    .tint(themeManager.accent(for: colorScheme))
+    .toolbarBackground(themeManager.primaryBackground(for: colorScheme), for: .tabBar)
+    .toolbarBackground(.visible, for: .tabBar)
     .onAppear {
       if !hasMigrated {
         CategorySortOrderMigration.migrateIfNeeded(modelContext: modelContext)
@@ -46,4 +51,5 @@ struct ContentView: View {
 #Preview {
   ContentView()
     .modelContainer(for: [Deadline.self, Category.self], inMemory: true)
+    .environmentObject(ThemeManager())
 }
