@@ -9,38 +9,20 @@ import SwiftData
 import SwiftUI
 
 struct DeadlineBarView: View {
-  let deadline: Deadline
+  var deadline: Deadline
   var maxDaysReference: Double = 30
-  var internalPadding: CGFloat = 4
 
+  @AppStorage(
+    SettingsKeys.deadlineDensity
+  ) private var deadlineDensity: DeadlineDensity = .detailed
+
+  private let internalPadding: CGFloat = 4
   private let outerCornerRadius: CGFloat = 16
-
   private var innerCornerRadius: CGFloat {
     outerCornerRadius - internalPadding
   }
-
   private var minimumColoredWidth: CGFloat {
     2 * innerCornerRadius
-  }
-
-  private var barWidth: Double {
-    guard let daysUntil = deadline.daysUntil else { return 1.0 }
-
-    // Inverse proportionality - closer deadlines get wider bars
-    let maxDays: Double = maxDaysReference
-    let minWidth: Double = 0.04  // Minimum 20% width
-
-    if daysUntil <= 0 {
-      return 1.0  // Full width for overdue
-    }
-
-    // Calculate inverse proportion: fewer days = wider bar
-    let width = max(minWidth, 1.0 - (Double(daysUntil) / maxDays))
-    return min(1.0, width)
-  }
-
-  private var categoryColor: Color {
-    return deadline.category?.color ?? .gray
   }
 
   var body: some View {
@@ -70,35 +52,17 @@ struct DeadlineBarView: View {
       }
 
       // Content
-      HStack {
-        VStack(alignment: .leading) {
+      VStack(alignment: .leading) {
+        HStack {
           Text(deadline.title)
             .font(.body)
             .fontWeight(.semibold)
             .lineLimit(1)
-            .padding(.trailing, 8)
             .shadow(color: .primary.opacity(0.1), radius: 6)
 
-          Text(deadline.notes ?? "No description")
-            .font(.footnote)
-            .foregroundColor(Color(.secondaryLabel))
-            .lineLimit(1)
-            .padding(.trailing, 8)
-            .opacity(deadline.notes == nil ? 0 : 1)
+          Spacer()
 
-          Text(deadline.category?.name ?? "No category")
-            .font(.caption2)
-            .fontWeight(.medium)
-            .foregroundColor(categoryColor)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .glassEffect(in: .rect(cornerRadius: 6))
-        }
-
-        Spacer()
-
-        VStack(alignment: .leading) {
-          HStack(alignment: .center) {
+          HStack {
             if let daysUntil = deadline.daysUntil, daysUntil > 0 {
               Text(deadline.daysUntilText)
                 .font(.caption2)
@@ -112,8 +76,23 @@ struct DeadlineBarView: View {
               .frame(width: 12, height: 12)
               .foregroundStyle(categoryColor)
           }
-          .padding(.vertical, 6)
-          Spacer()
+        }
+
+        if deadlineDensity == .detailed {
+          Text(deadline.notes ?? "No description")
+            .font(.footnote)
+            .foregroundColor(Color(.secondaryLabel))
+            .lineLimit(1)
+            .opacity(deadline.notes == nil ? 0 : 1)
+            .padding(.bottom, 8)
+
+          Text(deadline.category?.name ?? "No category")
+            .font(.caption2)
+            .fontWeight(.medium)
+            .foregroundColor(categoryColor)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .glassEffect(in: .rect(cornerRadius: 6))
         }
       }
       .padding()
@@ -122,16 +101,53 @@ struct DeadlineBarView: View {
       RoundedRectangle(cornerRadius: outerCornerRadius)
     )
     .shadow(color: Color.primary.opacity(0.1), radius: 8, x: 0, y: 2)
+    .animation(.bouncy, value: deadlineDensity)
+  }
+
+  private var barWidth: Double {
+    guard let daysUntil = deadline.daysUntil else { return 1.0 }
+
+    // Inverse proportionality - closer deadlines get wider bars
+    let maxDays: Double = maxDaysReference
+    let minWidth: Double = 0.04  // Minimum 20% width
+
+    if daysUntil <= 0 {
+      return 1.0  // Full width for overdue
+    }
+
+    // Calculate inverse proportion: fewer days = wider bar
+    let width = max(minWidth, 1.0 - (Double(daysUntil) / maxDays))
+    return min(1.0, width)
+  }
+
+  private var categoryColor: Color {
+    return deadline.category?.color ?? .gray
   }
 }
 
 #Preview {
+  @Previewable
+  @AppStorage(
+    SettingsKeys.deadlineDensity
+  ) var density: DeadlineDensity = .detailed
+
   ScrollView {
-    VStack(alignment: .leading, spacing: 12) {
+    Picker(
+      "Density", selection: $density,
+      content: {
+        Text("Expanded").tag(DeadlineDensity.detailed)
+        Text("Collapsed").tag(DeadlineDensity.compact)
+      }
+    )
+    .pickerStyle(.segmented)
+    .padding()
+
+    VStack(alignment: .leading, spacing: 32) {
       ForEach(Deadline.sampleData) { deadline in
         DeadlineBarView(deadline: deadline)
       }
     }
+    .padding()
   }
   .sampleDataContainer()
 }

@@ -16,59 +16,48 @@ struct DeadlineListView: View {
   let onEdit: (Deadline) -> Void
   let onDelete: (Deadline) -> Void
 
-  init(
-    deadlines: [Deadline],
-    categories: [Category],
-    allDeadlinesCount: Int,
-    selectedCategory: Binding<Category?>,
-    onEdit: @escaping (Deadline) -> Void,
-    onDelete: @escaping (Deadline) -> Void
-  ) {
-    self.deadlines = deadlines
-    self.categories = categories
-    self.allDeadlinesCount = allDeadlinesCount
-    self._selectedCategory = selectedCategory
-    self.onEdit = onEdit
-    self.onDelete = onDelete
-  }
+  @AppStorage(SettingsKeys.deadlineDensity) private var deadlineDensity: DeadlineDensity = .detailed
 
   var body: some View {
-    List {
-      CategoryFilterRow(
-        categories: categories,
-        allDeadlinesCount: allDeadlinesCount,
-        selectedCategory: $selectedCategory
-      )
-
-      if let selectedCategory {
-        FilterNoticeView(
-          categoryName: selectedCategory.name,
-          categoryColor: selectedCategory.color
+    ScrollView {
+      VStack(spacing: 0) {
+        CategoryFilterRow(
+          categories: categories,
+          allDeadlinesCount: allDeadlinesCount,
+          selectedCategory: $selectedCategory
         )
-      }
 
-      ForEach(deadlines) { deadline in
-        DeadlineBarView(deadline: deadline)
-          .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-          .listRowBackground(Color.clear)
-          .listRowSeparator(.hidden)
-          .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(action: {
-              onEdit(deadline)
-            }) {
-              Image(systemName: "pencil")
-            }
-            .tint(.blue)
+        if let selectedCategory {
+          FilterNoticeView(
+            categoryName: selectedCategory.name,
+            categoryColor: selectedCategory.color
+          )
+        }
 
-            Button(
-              role: .destructive,
-              action: {
-                onDelete(deadline)
+        LazyVStack(spacing: 12) {
+          ForEach(deadlines) { deadline in
+            DeadlineBarView(deadline: deadline)
+              .padding(.horizontal, 16)
+              .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                Button(action: {
+                  onEdit(deadline)
+                }) {
+                  Image(systemName: "pencil")
+                }
+                .tint(.blue)
+
+                Button(
+                  role: .destructive,
+                  action: {
+                    onDelete(deadline)
+                  }
+                ) {
+                  Image(systemName: "trash")
+                }
               }
-            ) {
-              Image(systemName: "trash")
-            }
           }
+        }
+        .padding(.vertical, 6)
       }
     }
     .animation(.default, value: selectedCategory)
@@ -78,7 +67,10 @@ struct DeadlineListView: View {
 #Preview {
   @Previewable @State var selectedCategory: Category? = nil
 
-  let dataContainer = DataContainer(includeSampleMoments: true, isStoredInMemoryOnly: true)
+  let dataContainer = DataContainer(
+    includeSampleMoments: true,
+    isStoredInMemoryOnly: true
+  )
 
   let categories = try! dataContainer.context.fetch(FetchDescriptor<Category>())
   let deadlines = try! dataContainer.context.fetch(FetchDescriptor<Deadline>())
@@ -91,6 +83,5 @@ struct DeadlineListView: View {
     onEdit: { _ in print("Edit tapped") },
     onDelete: { _ in print("Delete tapped") }
   )
-  .listStyle(.plain)
   .modelContainer(dataContainer.modelContainer)
 }
