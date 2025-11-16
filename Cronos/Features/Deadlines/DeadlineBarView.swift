@@ -8,10 +8,15 @@
 import SwiftData
 import SwiftUI
 
+enum DeadlineBarState {
+  case expanded
+  case collapsed
+}
+
 struct DeadlineBarView: View {
   var deadline: Deadline
   var maxDaysReference: Double = 30
-  var isCollapsed: Bool = false
+  var state: DeadlineBarState = .expanded
 
   private let internalPadding: CGFloat = 4
   private let outerCornerRadius: CGFloat = 16
@@ -75,7 +80,7 @@ struct DeadlineBarView: View {
           }
         }
 
-        if !isCollapsed {
+        if state == .expanded {
           Text(deadline.notes ?? "No description")
             .font(.footnote)
             .foregroundColor(Color(.secondaryLabel))
@@ -122,17 +127,22 @@ struct DeadlineBarView: View {
 }
 
 #Preview {
-  @Previewable @State var isCollapsed: Bool = false
+  @Previewable @State var state: DeadlineBarState = .expanded
 
   ScrollView {
-    Toggle(isOn: $isCollapsed.animation(.bouncy)) {
-      Text("Collapsed/Expanded")
-    }
+    Picker(
+      "State", selection: $state.animation(.bouncy),
+      content: {
+        Text("Expanded").tag(DeadlineBarState.expanded)
+        Text("Collapsed").tag(DeadlineBarState.collapsed)
+      }
+    )
+    .pickerStyle(.segmented)
     .padding()
 
     VStack(alignment: .leading, spacing: 32) {
       ForEach(Deadline.sampleData) { deadline in
-        DeadlineBarView(deadline: deadline, isCollapsed: isCollapsed)
+        DeadlineBarView(deadline: deadline, state: state)
       }
     }
     .padding()
