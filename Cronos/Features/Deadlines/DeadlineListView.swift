@@ -16,48 +16,52 @@ struct DeadlineListView: View {
   let onEdit: (Deadline) -> Void
   let onDelete: (Deadline) -> Void
 
+  @AppStorage(SettingsKeys.deadlineDensity) private var deadlineDensity: DeadlineDensity = .detailed
+
   var body: some View {
-    List {
-      CategoryFilterRow(
-        categories: categories,
-        allDeadlinesCount: allDeadlinesCount,
-        selectedCategory: $selectedCategory
-      )
-
-      if let selectedCategory {
-        FilterNoticeView(
-          categoryName: selectedCategory.name,
-          categoryColor: selectedCategory.color
+    ScrollView {
+      VStack(spacing: 0) {
+        CategoryFilterRow(
+          categories: categories,
+          allDeadlinesCount: allDeadlinesCount,
+          selectedCategory: $selectedCategory
         )
-      }
 
-      ForEach(deadlines) { deadline in
-        DeadlineBarView(deadline: deadline)
-          .listRowInsets(
-            EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16)
+        if let selectedCategory {
+          FilterNoticeView(
+            categoryName: selectedCategory.name,
+            categoryColor: selectedCategory.color
           )
-          .listRowBackground(Color.clear)
-          .listRowSeparator(.hidden)
-          .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(action: {
-              onEdit(deadline)
-            }) {
-              Image(systemName: "pencil")
-            }
-            .tint(.blue)
+        }
 
-            Button(
-              role: .destructive,
-              action: {
-                onDelete(deadline)
+        LazyVStack(spacing: 12) {
+          ForEach(deadlines) { deadline in
+            DeadlineBarView(deadline: deadline)
+              .padding(.horizontal, 16)
+              .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                Button(action: {
+                  onEdit(deadline)
+                }) {
+                  Image(systemName: "pencil")
+                }
+                .tint(.blue)
+
+                Button(
+                  role: .destructive,
+                  action: {
+                    onDelete(deadline)
+                  }
+                ) {
+                  Image(systemName: "trash")
+                }
               }
-            ) {
-              Image(systemName: "trash")
-            }
           }
+        }
+        .padding(.vertical, 6)
       }
     }
     .animation(.default, value: selectedCategory)
+    .animation(.bouncy, value: deadlineDensity)
   }
 }
 
@@ -80,6 +84,5 @@ struct DeadlineListView: View {
     onEdit: { _ in print("Edit tapped") },
     onDelete: { _ in print("Delete tapped") }
   )
-  .listStyle(.plain)
   .modelContainer(dataContainer.modelContainer)
 }

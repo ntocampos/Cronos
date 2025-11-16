@@ -35,8 +35,6 @@ struct DashboardView: View {
           onEdit: editDeadline,
           onDelete: deleteDeadline
         )
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
       }
       .navigationTitle("Dashboard")
       .navigationBarTitleDisplayMode(.large)
