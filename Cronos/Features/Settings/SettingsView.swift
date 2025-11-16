@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
-  @Environment(\.modelContext) private var modelContext
+  @Environment(DataContainer.self) private var dataContainer
   @AppStorage("showNotifications") private var showNotifications = true
   @AppStorage("defaultReminderDays") private var defaultReminderDays = 3
   @State private var showingDeleteAlert = false
@@ -104,8 +104,8 @@ struct SettingsView: View {
     withAnimation {
       // Delete all deadlines and categories
       do {
-        try modelContext.delete(model: Deadline.self)
-        try modelContext.delete(model: Category.self)
+        try dataContainer.context.delete(model: Deadline.self)
+        try dataContainer.context.delete(model: Category.self)
       } catch {
         print("Error deleting data: \(error)")
       }
@@ -115,5 +115,5 @@ struct SettingsView: View {
 
 #Preview {
   SettingsView()
-    .modelContainer(for: [Deadline.self, Category.self], inMemory: true)
+    .sampleDataContainer()
 }

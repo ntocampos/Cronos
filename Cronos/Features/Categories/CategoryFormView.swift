@@ -10,7 +10,7 @@ import SwiftUI
 
 struct CategoryFormView: View {
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.modelContext) private var modelContext
+  @Environment(DataContainer.self) private var dataContainer
 
   // Category being edited (nil for new category)
   let category: Category?
@@ -108,13 +108,14 @@ struct CategoryFormView: View {
           sortBy: [SortDescriptor(\.sortOrder, order: .reverse)]
         )
 
-        let maxSortOrder = (try? modelContext.fetch(fetchDescriptor).first?.sortOrder) ?? -1
+        let maxSortOrder =
+          (try? dataContainer.context.fetch(fetchDescriptor).first?.sortOrder) ?? -1
         let newCategory = Category(
           name: trimmedName,
           colorHex: selectedColorHex,
           sortOrder: maxSortOrder + 1
         )
-        modelContext.insert(newCategory)
+        dataContainer.context.insert(newCategory)
       }
     }
     dismiss()
@@ -123,14 +124,10 @@ struct CategoryFormView: View {
 
 #Preview("Add Category") {
   CategoryFormView()
-    .modelContainer(.emptyPreview)
+    .sampleDataContainer()
 }
 
 #Preview("Edit Category") {
-  let container = ModelContainer.emptyPreview
-  let category = Category(name: "Work", colorHex: Category.DefaultColors.blue)
-  container.mainContext.insert(category)
-
-  return CategoryFormView(category: category)
-    .modelContainer(container)
+  return CategoryFormView(category: Category.work)
+    .sampleDataContainer()
 }

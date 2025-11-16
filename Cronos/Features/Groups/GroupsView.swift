@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct GroupsView: View {
-  @Environment(\.modelContext) private var modelContext
+  @Environment(DataContainer.self) private var dataContainer
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
 
   @State private var selectedGroupingMode: GroupingMode = .byCategory
@@ -111,7 +111,7 @@ struct GroupsView: View {
 
   private func deleteDeadline(_ deadline: Deadline) {
     withAnimation {
-      modelContext.delete(deadline)
+      dataContainer.context.delete(deadline)
     }
   }
 }
@@ -150,10 +150,10 @@ struct GroupHeaderView: View {
 
 #Preview("Category Grouping") {
   GroupsView()
-    .modelContainer(.preview)
+    .sampleDataContainer()
 }
 
 #Preview("Empty State") {
   GroupsView()
-    .modelContainer(.emptyPreview)
+    .emptyDataContainer()
 }
