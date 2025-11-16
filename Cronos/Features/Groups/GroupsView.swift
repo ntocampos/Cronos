@@ -23,65 +23,70 @@ struct GroupsView: View {
   var body: some View {
     NavigationStack {
       ZStack {
-        VStack(spacing: 0) {
-          // Picker for grouping mode
-          Picker("Group by", selection: $selectedGroupingMode) {
-            Text("Category").tag(GroupingMode.byCategory)
-            Text("Timeframe").tag(GroupingMode.byTimeframe)
-          }
-          .pickerStyle(.segmented)
-          .padding()
+        ScrollView {
+          VStack(spacing: 0) {
+            // Picker for grouping mode
+            Picker("Group by", selection: $selectedGroupingMode) {
+              Text("Category").tag(GroupingMode.byCategory)
+              Text("Timeframe").tag(GroupingMode.byTimeframe)
+            }
+            .pickerStyle(.segmented)
+            .padding()
 
-          // Grouped list
-          if groupedDeadlines.isEmpty {
-            ContentUnavailableView(
-              "No Deadlines",
-              systemImage: "calendar",
-              description: Text("Add your first deadline to get started")
-            )
-          } else {
-            List {
-              ForEach(groupedDeadlines) { group in
-                Section {
-                  ForEach(group.deadlines) { deadline in
-                    DeadlineBarView(
-                      deadline: deadline,
-                      maxDaysReference: group.maxDaysReference ?? 30
+            // Grouped list
+            if groupedDeadlines.isEmpty {
+              ContentUnavailableView(
+                "No Deadlines",
+                systemImage: "calendar",
+                description: Text("Add your first deadline to get started")
+              )
+            } else {
+              LazyVStack(spacing: 24, pinnedViews: []) {
+                ForEach(groupedDeadlines) { group in
+                  VStack(alignment: .leading, spacing: 8) {
+                    // Section header
+                    GroupHeaderView(
+                      title: group.title,
+                      count: group.deadlines.count,
+                      color: group.color
                     )
-                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                      Button(action: {
-                        editDeadline(deadline)
-                      }) {
-                        Image(systemName: "pencil")
-                      }
-                      .tint(.blue)
+                    .padding(.horizontal, 16)
 
-                      Button(
-                        role: .destructive,
-                        action: {
-                          deleteDeadline(deadline)
+                    // Deadlines in this group
+                    LazyVStack(spacing: 12) {
+                      ForEach(group.deadlines) { deadline in
+                        DeadlineBarView(
+                          deadline: deadline,
+                          maxDaysReference: group.maxDaysReference ?? 30
+                        )
+                        .padding(.horizontal, 16)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                          Button(action: {
+                            editDeadline(deadline)
+                          }) {
+                            Image(systemName: "pencil")
+                          }
+                          .tint(.blue)
+
+                          Button(
+                            role: .destructive,
+                            action: {
+                              deleteDeadline(deadline)
+                            }
+                          ) {
+                            Image(systemName: "trash")
+                          }
                         }
-                      ) {
-                        Image(systemName: "trash")
                       }
                     }
                   }
-                } header: {
-                  GroupHeaderView(
-                    title: group.title,
-                    count: group.deadlines.count,
-                    color: group.color
-                  )
                 }
               }
+              .padding(.vertical, 6)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
           }
         }
+        .animation(.default, value: selectedGroupingMode)
       }
       .navigationTitle("Groups")
       .navigationBarTitleDisplayMode(.large)
@@ -112,6 +117,8 @@ struct GroupHeaderView: View {
   let count: Int
   let color: Color?
 
+  @AppStorage(SettingsKeys.deadlineDensity) private var deadlineDensity: DeadlineDensity = .detailed
+
   var body: some View {
     HStack(spacing: 8) {
       // Color indicator
@@ -134,6 +141,7 @@ struct GroupHeaderView: View {
     }
     .padding(.vertical, 8)
     .textCase(nil)
+    .animation(.bouncy, value: deadlineDensity)
   }
 }
 
