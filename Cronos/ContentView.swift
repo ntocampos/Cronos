@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-  @Environment(\.modelContext) private var modelContext
+  @Environment(DataContainer.self) private var dataContainer
   @State private var hasMigrated = false
 
   var body: some View {
@@ -36,7 +36,7 @@ struct ContentView: View {
     }
     .onAppear {
       if !hasMigrated {
-        CategorySortOrderMigration.migrateIfNeeded(modelContext: modelContext)
+        CategorySortOrderMigration.migrateIfNeeded(modelContext: dataContainer.context)
         hasMigrated = true
       }
     }
@@ -45,5 +45,5 @@ struct ContentView: View {
 
 #Preview {
   ContentView()
-    .modelContainer(for: [Deadline.self, Category.self], inMemory: true)
+    .sampleDataContainer()
 }

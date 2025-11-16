@@ -78,13 +78,12 @@ struct DeadlineListView: View {
 #Preview {
   @Previewable @State var selectedCategory: Category? = nil
 
-  let container = ModelContainer.preview
-  let context = container.mainContext
+  let dataContainer = DataContainer(includeSampleMoments: true, isStoredInMemoryOnly: true)
 
-  let categories = try! context.fetch(FetchDescriptor<Category>())
-  let deadlines = try! context.fetch(FetchDescriptor<Deadline>())
+  let categories = try! dataContainer.context.fetch(FetchDescriptor<Category>())
+  let deadlines = try! dataContainer.context.fetch(FetchDescriptor<Deadline>())
 
-  return DeadlineListView(
+  DeadlineListView(
     deadlines: deadlines,
     categories: categories,
     allDeadlinesCount: deadlines.count,
@@ -93,5 +92,5 @@ struct DeadlineListView: View {
     onDelete: { _ in print("Delete tapped") }
   )
   .listStyle(.plain)
-  .modelContainer(container)
+  .modelContainer(dataContainer.modelContainer)
 }

@@ -10,30 +10,13 @@ import SwiftUI
 
 @main
 struct CronosApp: App {
-  var sharedModelContainer: ModelContainer = {
-    let schema = Schema([
-      Deadline.self,
-      Category.self,
-    ])
-    let modelConfiguration = ModelConfiguration(
-      schema: schema,
-      isStoredInMemoryOnly: false
-    )
-
-    do {
-      return try ModelContainer(
-        for: schema,
-        configurations: [modelConfiguration]
-      )
-    } catch {
-      fatalError("Could not create ModelContainer: \(error)")
-    }
-  }()
+  let dataContainer = DataContainer()
 
   var body: some Scene {
     WindowGroup {
       ContentView()
+        .environment(dataContainer)
     }
-    .modelContainer(sharedModelContainer)
+    .modelContainer(dataContainer.modelContainer)
   }
 }

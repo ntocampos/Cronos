@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct CategoriesView: View {
-  @Environment(\.modelContext) private var modelContext
+  @Environment(DataContainer.self) private var dataContainer
   @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
   @State private var showingAddCategory = false
   @State private var categoryToEdit: Category?
@@ -80,13 +80,13 @@ struct CategoriesView: View {
       category.sortOrder = index
     }
 
-    try? modelContext.save()
+    try? dataContainer.context.save()
   }
 
   private func deleteCategories(offsets: IndexSet) {
     withAnimation {
       for index in offsets {
-        modelContext.delete(categories[index])
+        dataContainer.context.delete(categories[index])
       }
     }
   }
@@ -96,5 +96,5 @@ struct CategoriesView: View {
   NavigationView {
     CategoriesView()
   }
-  .modelContainer(for: [Category.self, Deadline.self], inMemory: true)
+  .sampleDataContainer()
 }

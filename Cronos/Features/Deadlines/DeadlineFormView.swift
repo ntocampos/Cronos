@@ -10,7 +10,7 @@ import SwiftUI
 
 struct DeadlineFormView: View {
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.modelContext) private var modelContext
+  @Environment(DataContainer.self) private var dataContainer
   @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
   // Deadline being edited (nil for new deadline)
@@ -161,7 +161,7 @@ struct DeadlineFormView: View {
           date: date,
           category: selectedCategory
         )
-        modelContext.insert(newDeadline)
+        dataContainer.context.insert(newDeadline)
       }
     }
     dismiss()
@@ -169,26 +169,11 @@ struct DeadlineFormView: View {
 }
 
 #Preview("Add Deadline") {
-  let container = ModelContainer.emptyPreview
-  SampleData.addSampleCategories(to: container.mainContext)
-
-  return DeadlineFormView()
-    .modelContainer(container)
+  DeadlineFormView()
+    .sampleDataContainer()
 }
 
 #Preview("Edit Deadline") {
-  let container = ModelContainer.emptyPreview
-  // Add sample data
-  let category = Category(name: "Work", colorHex: Category.DefaultColors.blue)
-  let deadline = Deadline(
-    title: "Submit Report",
-    notes: "Quarterly financial report due to management",
-    date: Date().addingTimeInterval(86400 * 3),  // 3 days from now
-    category: category
-  )
-  container.mainContext.insert(category)
-  container.mainContext.insert(deadline)
-
-  return DeadlineFormView(deadline: deadline)
-    .modelContainer(container)
+  DeadlineFormView(deadline: Deadline.sample)
+    .sampleDataContainer()
 }

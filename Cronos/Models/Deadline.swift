@@ -17,7 +17,12 @@ final class Deadline: Identifiable {
 
   var category: Category?
 
-  init(title: String, notes: String? = nil, date: Date, category: Category? = nil) {
+  init(
+    title: String,
+    notes: String? = nil,
+    date: Date,
+    category: Category? = nil
+  ) {
     self.id = UUID()
     self.title = title
     self.notes = notes
@@ -41,4 +46,42 @@ final class Deadline: Identifiable {
     if daysUntil == 1 { return "Tomorrow" }
     return "\(daysUntil) day\(daysUntil == 1 ? "" : "s")"
   }
+}
+
+extension Deadline {
+  static let sample = sampleData[0]
+
+  static let sampleData = [
+    Deadline(
+      title: "Project delivery",
+      notes: "All-hands presentation",
+      date: Calendar.current
+        .date(byAdding: .day, value: 3, to: Date()) ?? Date(),
+      category: Category.work,
+    ),
+    Deadline(
+      title: "Christmas tree",
+      date: Calendar.current
+        .date(byAdding: .day, value: 6, to: Date()) ?? Date(),
+      category: Category.personal,
+    ),
+    Deadline(
+      title: "Buy new clothes",
+      date: Calendar.current
+        .date(byAdding: .day, value: 60, to: Date()) ?? Date(),
+      category: Category.personal,
+    ),
+    Deadline(
+      title: "Beat Yotei",
+      date: Calendar.current
+        .date(byAdding: .day, value: 30, to: Date()) ?? Date(),
+      category: Category.hobby,
+    ),
+    Deadline(
+      title: "Performance reviews",
+      date: Calendar.current
+        .date(byAdding: .day, value: 120, to: Date()) ?? Date(),
+      category: Category.work,
+    ),
+  ]
 }

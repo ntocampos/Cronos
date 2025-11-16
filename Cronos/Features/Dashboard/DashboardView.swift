@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct DashboardView: View {
-  @Environment(\.modelContext) private var modelContext
+  @Environment(DataContainer.self) private var dataContainer
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
   @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
@@ -79,7 +79,7 @@ struct DashboardView: View {
 
   private func deleteDeadline(_ deadline: Deadline) {
     withAnimation {
-      modelContext.delete(deadline)
+      dataContainer.context.delete(deadline)
     }
   }
 
@@ -87,5 +87,5 @@ struct DashboardView: View {
 
 #Preview {
   DashboardView()
-    .modelContainer(.preview)
+    .sampleDataContainer()
 }
