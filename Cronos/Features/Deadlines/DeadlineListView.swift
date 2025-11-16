@@ -16,22 +16,6 @@ struct DeadlineListView: View {
   let onEdit: (Deadline) -> Void
   let onDelete: (Deadline) -> Void
 
-  init(
-    deadlines: [Deadline],
-    categories: [Category],
-    allDeadlinesCount: Int,
-    selectedCategory: Binding<Category?>,
-    onEdit: @escaping (Deadline) -> Void,
-    onDelete: @escaping (Deadline) -> Void
-  ) {
-    self.deadlines = deadlines
-    self.categories = categories
-    self.allDeadlinesCount = allDeadlinesCount
-    self._selectedCategory = selectedCategory
-    self.onEdit = onEdit
-    self.onDelete = onDelete
-  }
-
   var body: some View {
     List {
       CategoryFilterRow(
@@ -49,7 +33,9 @@ struct DeadlineListView: View {
 
       ForEach(deadlines) { deadline in
         DeadlineBarView(deadline: deadline)
-          .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+          .listRowInsets(
+            EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16)
+          )
           .listRowBackground(Color.clear)
           .listRowSeparator(.hidden)
           .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -78,7 +64,10 @@ struct DeadlineListView: View {
 #Preview {
   @Previewable @State var selectedCategory: Category? = nil
 
-  let dataContainer = DataContainer(includeSampleMoments: true, isStoredInMemoryOnly: true)
+  let dataContainer = DataContainer(
+    includeSampleMoments: true,
+    isStoredInMemoryOnly: true
+  )
 
   let categories = try! dataContainer.context.fetch(FetchDescriptor<Category>())
   let deadlines = try! dataContainer.context.fetch(FetchDescriptor<Deadline>())

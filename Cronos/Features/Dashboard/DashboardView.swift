@@ -17,6 +17,8 @@ struct DashboardView: View {
   @State private var deadlineToEdit: Deadline?
   @State private var selectedCategory: Category?
 
+  @AppStorage(SettingsKeys.deadlineDensity) private var deadlineDensity: DeadlineDensity = .detailed
+
   private var filteredDeadlines: [Deadline] {
     guard let selectedCategory else { return deadlines }
     return deadlines.filter { $0.category?.id == selectedCategory.id }
@@ -39,9 +41,21 @@ struct DashboardView: View {
       .navigationTitle("Dashboard")
       .navigationBarTitleDisplayMode(.large)
       .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            deadlineDensity = deadlineDensity == .detailed ? .compact : .detailed
+          } label: {
+            Label(
+              deadlineDensity == .detailed ? "Collapse" : "Expand",
+              systemImage: deadlineDensity == .detailed
+                ? "rectangle.compress.vertical" : "rectangle.expand.vertical"
+            )
+          }
+        }
+
         ToolbarItem(placement: .navigationBarTrailing) {
-          Button(action: { showingAddDeadline = true }) {
-            Label("Add Deadline", systemImage: "plus")
+          Button("Add Deadline", systemImage: "plus") {
+            showingAddDeadline = true
           }
         }
       }
@@ -66,7 +80,9 @@ struct DashboardView: View {
           ContentUnavailableView(
             "No Items in This Category",
             systemImage: "tray",
-            description: Text("Try selecting a different category or add a new deadline")
+            description: Text(
+              "Try selecting a different category or add a new deadline"
+            )
           )
         }
       }

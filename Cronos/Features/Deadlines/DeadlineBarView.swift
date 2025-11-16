@@ -11,7 +11,10 @@ import SwiftUI
 struct DeadlineBarView: View {
   var deadline: Deadline
   var maxDaysReference: Double = 30
-  var density: DeadlineDensity = .expanded
+
+  @AppStorage(
+    SettingsKeys.deadlineDensity
+  ) private var deadlineDensity: DeadlineDensity = .detailed
 
   private let internalPadding: CGFloat = 4
   private let outerCornerRadius: CGFloat = 16
@@ -75,7 +78,7 @@ struct DeadlineBarView: View {
           }
         }
 
-        if density == .expanded {
+        if deadlineDensity == .detailed {
           Text(deadline.notes ?? "No description")
             .font(.footnote)
             .foregroundColor(Color(.secondaryLabel))
@@ -98,6 +101,7 @@ struct DeadlineBarView: View {
       RoundedRectangle(cornerRadius: outerCornerRadius)
     )
     .shadow(color: Color.primary.opacity(0.1), radius: 8, x: 0, y: 2)
+    .animation(.bouncy, value: deadlineDensity)
   }
 
   private var barWidth: Double {
@@ -122,14 +126,17 @@ struct DeadlineBarView: View {
 }
 
 #Preview {
-  @Previewable @State var state: DeadlineDensity = .expanded
+  @Previewable
+  @AppStorage(
+    SettingsKeys.deadlineDensity
+  ) var density: DeadlineDensity = .detailed
 
   ScrollView {
     Picker(
-      "State", selection: $state.animation(.bouncy),
+      "Density", selection: $density,
       content: {
-        Text("Expanded").tag(DeadlineDensity.expanded)
-        Text("Collapsed").tag(DeadlineDensity.collapsed)
+        Text("Expanded").tag(DeadlineDensity.detailed)
+        Text("Collapsed").tag(DeadlineDensity.compact)
       }
     )
     .pickerStyle(.segmented)
@@ -137,7 +144,7 @@ struct DeadlineBarView: View {
 
     VStack(alignment: .leading, spacing: 32) {
       ForEach(Deadline.sampleData) { deadline in
-        DeadlineBarView(deadline: deadline, density: state)
+        DeadlineBarView(deadline: deadline)
       }
     }
     .padding()
