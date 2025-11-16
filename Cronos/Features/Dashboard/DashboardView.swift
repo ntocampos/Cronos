@@ -38,30 +38,7 @@ struct DashboardView: View {
       }
       .navigationTitle("Dashboard")
       .navigationBarTitleDisplayMode(.large)
-      .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
-          Button {
-            deadlineDensity = deadlineDensity == .detailed ? .compact : .detailed
-          } label: {
-            Label(
-              deadlineDensity == .detailed ? "Collapse" : "Expand",
-              systemImage: deadlineDensity == .detailed
-                ? "rectangle.compress.vertical" : "rectangle.expand.vertical"
-            )
-          }
-        }
-
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button("Add Deadline", systemImage: "plus") {
-            showingAddDeadline = true
-          }
-        }
-      }
-      .sheet(isPresented: $showingAddDeadline) {
-        DeadlineFormView()
-          .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
-      }
+      .deadlineToolbar()
       .sheet(item: $deadlineToEdit) { deadline in
         DeadlineFormView(deadline: deadline)
           .presentationDetents([.large])

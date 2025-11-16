@@ -85,18 +85,7 @@ struct GroupsView: View {
       }
       .navigationTitle("Groups")
       .navigationBarTitleDisplayMode(.large)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button(action: { showingAddDeadline = true }) {
-            Label("Add Deadline", systemImage: "plus")
-          }
-        }
-      }
-      .sheet(isPresented: $showingAddDeadline) {
-        DeadlineFormView()
-          .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
-      }
+      .deadlineToolbar()
       .sheet(item: $deadlineToEdit) { deadline in
         DeadlineFormView(deadline: deadline)
           .presentationDetents([.large])

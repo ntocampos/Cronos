@@ -61,7 +61,6 @@ struct DeadlineListView: View {
       }
     }
     .animation(.default, value: selectedCategory)
-    .animation(.bouncy, value: deadlineDensity)
   }
 }
 
