@@ -16,7 +16,9 @@ struct DeadlineListView: View {
   let onEdit: (Deadline) -> Void
   let onDelete: (Deadline) -> Void
 
-  @AppStorage(SettingsKeys.deadlineDensity) private var deadlineDensity: DeadlineDensity = .detailed
+  @AppStorage(
+    SettingsKeys.deadlineDensity
+  ) private var deadlineDensity: DeadlineDensity = .detailed
 
   var body: some View {
     ScrollView {
@@ -38,21 +40,12 @@ struct DeadlineListView: View {
           ForEach(deadlines) { deadline in
             DeadlineBarView(deadline: deadline)
               .padding(.horizontal, 16)
-              .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button(action: {
+              .contextMenu {
+                Button("Edit", systemImage: "square.and.pencil") {
                   onEdit(deadline)
-                }) {
-                  Image(systemName: "pencil")
                 }
-                .tint(.blue)
-
-                Button(
-                  role: .destructive,
-                  action: {
-                    onDelete(deadline)
-                  }
-                ) {
-                  Image(systemName: "trash")
+                Button("Delete", systemImage: "trash", role: .destructive) {
+                  onDelete(deadline)
                 }
               }
           }
