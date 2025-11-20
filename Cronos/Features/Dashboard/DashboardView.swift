@@ -36,7 +36,7 @@ struct DashboardView: View {
           selectedCategory: $selectedCategory
         )
       }
-      .navigationTitle("Dashboard")
+      .navigationTitle("Overview")
       .navigationBarTitleDisplayMode(.large)
       .deadlineToolbar()
       .sheet(item: $coordinator.deadlineToEdit) { deadline in
