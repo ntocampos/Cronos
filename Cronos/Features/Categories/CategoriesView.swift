@@ -21,6 +21,11 @@ struct CategoriesView: View {
         List {
           ForEach(categories) { category in
             CategoryRowView(category: category)
+              .padding(.horizontal)
+              .padding(.vertical, 8)
+              .listRowSeparator(.hidden)
+              .listRowInsets(EdgeInsets())
+              .listRowBackground(Color.clear)
               .onTapGesture {
                 if editMode == .inactive {
                   categoryToEdit = category
@@ -30,6 +35,7 @@ struct CategoriesView: View {
           .onMove(perform: moveCategories)
           .onDelete(perform: deleteCategories)
         }
+        .listStyle(.plain)
         .environment(\.editMode, $editMode)
         .scrollContentBackground(.hidden)
         .navigationTitle("Categories")
@@ -89,6 +95,10 @@ struct CategoriesView: View {
         dataContainer.context.delete(categories[index])
       }
     }
+  }
+
+  private func deleteCategory(_ category: Category) {
+    dataContainer.context.delete(category)
   }
 }
 
