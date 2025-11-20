@@ -7,26 +7,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Cronos** is an iOS deadline management app built with SwiftUI and SwiftData. The app features an innovative "reversed progress bar" visualization system where deadline bars grow wider as they become more imminent, providing at-a-glance temporal awareness.
 
 **Key Characteristics:**
-- Pure SwiftUI + SwiftData architecture (no ViewModels)
+- Pure SwiftUI + SwiftData architecture with @Observable coordinator pattern
 - Local-first data persistence (no cloud sync in v1)
 - Feature-based modular structure
-- Target: iOS 16+ (iPadOS universal)
+- Target: iOS 17+ (iPadOS universal)
 
 ## Development Commands
 
 ### Building and Running
 ```bash
-# Build the project
-xcodebuild -project Cronos.xcodeproj -scheme Cronos -configuration Debug build
+# Build the project (clean build recommended)
+xcodebuild -project Cronos.xcodeproj -scheme Cronos -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17' clean build
+
+# Build without clean (faster)
+xcodebuild -project Cronos.xcodeproj -scheme Cronos -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17' build
 
 # Run tests
-xcodebuild test -project Cronos.xcodeproj -scheme Cronos -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -project Cronos.xcodeproj -scheme Cronos -destination 'platform=iOS Simulator,name=iPhone 17'
 
 # Run UI tests
-xcodebuild test -project Cronos.xcodeproj -scheme Cronos -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:CronosUITests
+xcodebuild test -project Cronos.xcodeproj -scheme Cronos -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:CronosUITests
 
 # Run specific test
-xcodebuild test -project Cronos.xcodeproj -scheme Cronos -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:CronosTests/TestClassName/testMethodName
+xcodebuild test -project Cronos.xcodeproj -scheme Cronos -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:CronosTests/TestClassName/testMethodName
 ```
 
 ### Code Formatting
@@ -62,19 +65,21 @@ SwiftData (automatic persistence)
 ### Core Architectural Decisions
 
 **1. View-Centric Data Access**
-- No service layer or ViewModels (yet)
 - Views query data directly using `@Query` property wrapper
 - Data mutations through `@Environment(\.modelContext)`
 - Exception: Tests reference `DeadlineGroupingService` (not yet implemented)
 
-**2. Modal Form Pattern**
-- Add/Edit operations use SwiftUI sheets with `.sheet(item:)` bindings
-- Forms manage local state with `@State` properties
-- Parent views handle sheet presentation and data persistence
+**2. @Observable Coordinator Pattern (iOS 17+)**
+- `DeadlineCoordinator` manages deadline actions and sheet presentation state
+- Injected app-wide via environment in `CronosApp.swift`
+- Views access coordinator through `@Environment(DeadlineCoordinator.self)`
+- Eliminates prop drilling and provides single source of truth
+- Uses `@Bindable` wrapper for creating bindings to coordinator properties
 
-**3. Callback-Based List Actions**
-- List views accept closures for edit/delete: `onEdit: (Deadline) -> Void`
-- Separates presentation (list) from business logic (parent view)
+**3. Modal Form Pattern**
+- Add/Edit operations use SwiftUI sheets with `.sheet(item:)` bindings
+- Sheet presentation state managed by coordinator (`deadlineToEdit`)
+- Forms manage local state with `@State` properties
 
 **4. Reversed Progress Bar Visualization**
 The app's signature feature—bar width is inversely proportional to days remaining:
@@ -87,6 +92,8 @@ The app's signature feature—bar width is inversely proportional to days remain
 
 ```
 Cronos/
+├── Coordinators/        # @Observable coordinator classes
+│   └── DeadlineCoordinator.swift  # Manages deadline actions & sheet state
 ├── Models/              # SwiftData @Model entities
 │   ├── Deadline.swift   # Core entity with computed display properties
 │   ├── Category.swift   # One-to-many relationship with Deadlines
@@ -97,7 +104,7 @@ Cronos/
 │   ├── Deadlines/       # Deadline CRUD operations
 │   ├── Categories/      # Category management
 │   ├── Settings/        # App settings and data management
-│   └── Groups/          # Empty (grouping feature WIP)
+│   └── Groups/          # Deadline grouping by category/timeframe
 ├── Services/            # Empty (prepared for future service layer)
 ├── Shared/Extensions/   # Common utilities
 │   ├── Color.swift      # HEX string ↔ Color conversion
@@ -220,16 +227,27 @@ When category is deleted, deadline.category becomes nil
 // Query data (reactive)
 @Query(sort: \Deadline.date) private var deadlines: [Deadline]
 
-// Environment access for persistence
+// Environment access
 @Environment(\.modelContext) private var modelContext
+@Environment(DeadlineCoordinator.self) private var coordinator
 
 // Local form state
 @State private var title: String = ""
 @State private var selectedDate = Date()
 
-// Presentation state
-@State private var showingAddSheet = false
-@State private var editingDeadline: Deadline?
+// Coordinator actions (available via environment)
+coordinator.edit(deadline)
+coordinator.delete(deadline, context: modelContext)
+
+// Sheet binding (requires @Bindable wrapper in body)
+var body: some View {
+  @Bindable var coordinator = coordinator
+
+  // ... view content ...
+  .sheet(item: $coordinator.deadlineToEdit) { deadline in
+    DeadlineFormView(deadline: deadline)
+  }
+}
 ```
 
 ## Testing
@@ -285,11 +303,15 @@ When working on specific features, start with these files:
 - `Models/Deadline.swift` - Deadline entity with display logic
 - `Models/Category.swift` - Category entity with relationships
 
+**Coordination:**
+- `Coordinators/DeadlineCoordinator.swift` - @Observable coordinator for deadline actions
+
 **Main UI:**
 - `ContentView.swift` - TabView root navigation
 - `Features/Dashboard/DashboardView.swift` - Main deadline list with queries
 - `Features/Deadlines/DeadlineBarView.swift` - Progress bar visualization
 - `Features/Deadlines/DeadlineFormView.swift` - Add/Edit deadline workflow
+- `Features/Groups/GroupsView.swift` - Grouped deadline views
 
 **Utilities:**
 - `Shared/Extensions/Color.swift` - HEX ↔ Color conversion

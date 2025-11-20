@@ -130,6 +130,7 @@ struct DeadlineBarView: View {
   @AppStorage(
     SettingsKeys.deadlineDensity
   ) var density: DeadlineDensity = .detailed
+  @Previewable @State var coordinator = DeadlineCoordinator()
 
   ScrollView {
     Picker(
@@ -150,4 +151,5 @@ struct DeadlineBarView: View {
     .padding()
   }
   .sampleDataContainer()
+  .environment(coordinator)
 }

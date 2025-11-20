@@ -44,6 +44,9 @@ struct ContentView: View {
 }
 
 #Preview {
+  @Previewable @State var coordinator = DeadlineCoordinator()
+
   ContentView()
     .sampleDataContainer()
+    .environment(coordinator)
 }

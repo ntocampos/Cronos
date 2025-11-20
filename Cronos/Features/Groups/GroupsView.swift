@@ -10,17 +10,20 @@ import SwiftUI
 
 struct GroupsView: View {
   @Environment(DataContainer.self) private var dataContainer
+  @Environment(DeadlineCoordinator.self) private var coordinator
+  @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
 
   @State private var selectedGroupingMode: GroupingMode = .byCategory
   @State private var showingAddDeadline = false
-  @State private var deadlineToEdit: Deadline?
 
   private var groupedDeadlines: [DeadlineGroup] {
     DeadlineGroupingService.groupDeadlines(deadlines, by: selectedGroupingMode)
   }
 
   var body: some View {
+    @Bindable var coordinator = coordinator
+
     NavigationStack {
       ZStack {
         ScrollView {
@@ -60,21 +63,15 @@ struct GroupsView: View {
                           maxDaysReference: group.maxDaysReference ?? 30
                         )
                         .padding(.horizontal, 16)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                          Button(action: {
-                            editDeadline(deadline)
-                          }) {
-                            Image(systemName: "pencil")
+                        .onTapGesture {
+                          coordinator.edit(deadline)
+                        }
+                        .contextMenu {
+                          Button("Edit", systemImage: "square.and.pencil") {
+                            coordinator.edit(deadline)
                           }
-                          .tint(.blue)
-
-                          Button(
-                            role: .destructive,
-                            action: {
-                              deleteDeadline(deadline)
-                            }
-                          ) {
-                            Image(systemName: "trash")
+                          Button("Delete", systemImage: "trash", role: .destructive) {
+                            coordinator.delete(deadline, context: modelContext)
                           }
                         }
                       }
@@ -91,21 +88,11 @@ struct GroupsView: View {
       .navigationTitle("Groups")
       .navigationBarTitleDisplayMode(.large)
       .deadlineToolbar()
-      .sheet(item: $deadlineToEdit) { deadline in
+      .sheet(item: $coordinator.deadlineToEdit) { deadline in
         DeadlineFormView(deadline: deadline)
           .presentationDetents([.large])
           .presentationDragIndicator(.visible)
       }
-    }
-  }
-
-  private func editDeadline(_ deadline: Deadline) {
-    deadlineToEdit = deadline
-  }
-
-  private func deleteDeadline(_ deadline: Deadline) {
-    withAnimation {
-      dataContainer.context.delete(deadline)
     }
   }
 }
@@ -146,11 +133,17 @@ struct GroupHeaderView: View {
 }
 
 #Preview("Category Grouping") {
+  @Previewable @State var coordinator = DeadlineCoordinator()
+
   GroupsView()
     .sampleDataContainer()
+    .environment(coordinator)
 }
 
 #Preview("Empty State") {
+  @Previewable @State var coordinator = DeadlineCoordinator()
+
   GroupsView()
     .emptyDataContainer()
+    .environment(coordinator)
 }

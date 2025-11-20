@@ -10,11 +10,11 @@ import SwiftUI
 
 struct DashboardView: View {
   @Environment(DataContainer.self) private var dataContainer
+  @Environment(DeadlineCoordinator.self) private var coordinator
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
   @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
   @State private var showingAddDeadline = false
-  @State private var deadlineToEdit: Deadline?
   @State private var selectedCategory: Category?
 
   @AppStorage(SettingsKeys.deadlineDensity) private var deadlineDensity: DeadlineDensity = .detailed
@@ -25,21 +25,21 @@ struct DashboardView: View {
   }
 
   var body: some View {
+    @Bindable var coordinator = coordinator
+
     NavigationStack {
       ZStack {
         DeadlineListView(
           deadlines: filteredDeadlines,
           categories: categories,
           allDeadlinesCount: deadlines.count,
-          selectedCategory: $selectedCategory,
-          onEdit: editDeadline,
-          onDelete: deleteDeadline
+          selectedCategory: $selectedCategory
         )
       }
       .navigationTitle("Dashboard")
       .navigationBarTitleDisplayMode(.large)
       .deadlineToolbar()
-      .sheet(item: $deadlineToEdit) { deadline in
+      .sheet(item: $coordinator.deadlineToEdit) { deadline in
         DeadlineFormView(deadline: deadline)
           .presentationDetents([.large])
           .presentationDragIndicator(.visible)
@@ -63,20 +63,12 @@ struct DashboardView: View {
       }
     }
   }
-
-  private func editDeadline(_ deadline: Deadline) {
-    deadlineToEdit = deadline
-  }
-
-  private func deleteDeadline(_ deadline: Deadline) {
-    withAnimation {
-      dataContainer.context.delete(deadline)
-    }
-  }
-
 }
 
 #Preview {
+  @Previewable @State var coordinator = DeadlineCoordinator()
+
   DashboardView()
     .sampleDataContainer()
+    .environment(coordinator)
 }

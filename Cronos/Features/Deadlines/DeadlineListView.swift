@@ -13,8 +13,9 @@ struct DeadlineListView: View {
   let categories: [Category]
   let allDeadlinesCount: Int
   @Binding var selectedCategory: Category?
-  let onEdit: (Deadline) -> Void
-  let onDelete: (Deadline) -> Void
+
+  @Environment(DeadlineCoordinator.self) private var coordinator
+  @Environment(\.modelContext) private var modelContext
 
   @AppStorage(
     SettingsKeys.deadlineDensity
@@ -40,12 +41,15 @@ struct DeadlineListView: View {
           ForEach(deadlines) { deadline in
             DeadlineBarView(deadline: deadline)
               .padding(.horizontal, 16)
+              .onTapGesture {
+                coordinator.edit(deadline)
+              }
               .contextMenu {
                 Button("Edit", systemImage: "square.and.pencil") {
-                  onEdit(deadline)
+                  coordinator.edit(deadline)
                 }
                 Button("Delete", systemImage: "trash", role: .destructive) {
-                  onDelete(deadline)
+                  coordinator.delete(deadline, context: modelContext)
                 }
               }
           }
@@ -59,6 +63,7 @@ struct DeadlineListView: View {
 
 #Preview {
   @Previewable @State var selectedCategory: Category? = nil
+  @Previewable @State var coordinator = DeadlineCoordinator()
 
   let dataContainer = DataContainer(
     includeSampleMoments: true,
@@ -72,9 +77,8 @@ struct DeadlineListView: View {
     deadlines: deadlines,
     categories: categories,
     allDeadlinesCount: deadlines.count,
-    selectedCategory: $selectedCategory,
-    onEdit: { _ in print("Edit tapped") },
-    onDelete: { _ in print("Delete tapped") }
+    selectedCategory: $selectedCategory
   )
   .modelContainer(dataContainer.modelContainer)
+  .environment(coordinator)
 }
