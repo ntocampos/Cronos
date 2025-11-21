@@ -40,7 +40,6 @@ struct DeadlineListView: View {
         LazyVStack(spacing: 12) {
           ForEach(deadlines) { deadline in
             DeadlineBarView(deadline: deadline)
-              .padding(.horizontal, 16)
               .onTapGesture {
                 coordinator.edit(deadline)
               }
@@ -55,6 +54,7 @@ struct DeadlineListView: View {
           }
         }
         .padding(.vertical, 6)
+        .padding(.horizontal, 16)
       }
     }
     .animation(.default, value: selectedCategory)
