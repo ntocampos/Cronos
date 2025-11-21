@@ -82,7 +82,7 @@ struct DeadlineBarView: View {
           Text(deadline.notes ?? "No description")
             .font(.footnote)
             .foregroundColor(Color(.secondaryLabel))
-            .lineLimit(1)
+            .lineLimit(1, reservesSpace: true)
             .opacity(deadline.notes == nil ? 0 : 1)
             .padding(.bottom, 8)
 

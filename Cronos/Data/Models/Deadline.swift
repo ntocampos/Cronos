@@ -61,6 +61,8 @@ extension Deadline {
     ),
     Deadline(
       title: "Christmas tree",
+      notes:
+        "A very long description to test how the UI behaves in this particular and maybe uncommon scenario",
       date: Calendar.current
         .date(byAdding: .day, value: 6, to: Date()) ?? Date(),
       category: Category.personal,
