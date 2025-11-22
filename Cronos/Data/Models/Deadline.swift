@@ -15,13 +15,13 @@ final class Deadline: Identifiable {
   var notes: String?
   var date: Date
 
-  var category: Category?
+  var category: Category
 
   init(
     title: String,
     notes: String? = nil,
     date: Date,
-    category: Category? = nil
+    category: Category
   ) {
     self.id = UUID()
     self.title = title
@@ -52,6 +52,12 @@ extension Deadline {
   static let sample = sampleData[0]
 
   static let sampleData = [
+    Deadline(
+      title: "Site release",
+      date: Calendar.current
+        .date(byAdding: .day, value: -2, to: Date()) ?? Date(),
+      category: Category.work,
+    ),
     Deadline(
       title: "Project delivery",
       notes: "All-hands presentation",

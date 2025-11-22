@@ -19,8 +19,21 @@ struct CategoryRowView: View {
         .frame(width: 16, height: 16)
 
       VStack(alignment: .leading, spacing: 2) {
-        Text(category.name)
-          .font(.headline)
+        HStack(spacing: 6) {
+          Text(category.name)
+            .font(.headline)
+
+          if category.isDefault {
+            Text("Default")
+              .font(.caption2)
+              .fontWeight(.medium)
+              .foregroundStyle(.secondary)
+              .padding(.horizontal, 6)
+              .padding(.vertical, 2)
+              .background(Color.secondary.opacity(0.15))
+              .clipShape(Capsule())
+          }
+        }
       }
 
       Spacer()

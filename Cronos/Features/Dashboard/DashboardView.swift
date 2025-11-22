@@ -21,7 +21,7 @@ struct DashboardView: View {
 
   private var filteredDeadlines: [Deadline] {
     guard let selectedCategory else { return deadlines }
-    return deadlines.filter { $0.category?.id == selectedCategory.id }
+    return deadlines.filter { $0.category.id == selectedCategory.id }
   }
 
   var body: some View {

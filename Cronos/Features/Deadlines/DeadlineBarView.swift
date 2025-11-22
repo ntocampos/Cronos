@@ -70,11 +70,18 @@ struct DeadlineBarView: View {
           Spacer()
 
           HStack {
-            if let daysUntil = deadline.daysUntil, daysUntil > 0 {
-              Text(deadline.daysUntilText)
-                .font(.caption2)
-                .fontWeight(.medium)
-                .foregroundColor(categoryColor)
+            if let daysUntil = deadline.daysUntil {
+              if daysUntil > 0 {
+                Text(deadline.daysUntilText)
+                  .font(.caption2)
+                  .fontWeight(.medium)
+                  .foregroundColor(categoryColor)
+              } else {
+                Text("Overdue")
+                  .font(.caption2)
+                  .fontWeight(.bold)
+                  .foregroundColor(.red)
+              }
             }
 
             Image(systemName: "chevron.right")
@@ -93,7 +100,7 @@ struct DeadlineBarView: View {
             .opacity(deadline.notes == nil ? 0 : 1)
             .padding(.bottom, 8)
 
-          Text(deadline.category?.name ?? "No category")
+          Text(deadline.category.name)
             .font(.caption2)
             .fontWeight(.medium)
             .foregroundColor(categoryColor)
@@ -128,7 +135,7 @@ struct DeadlineBarView: View {
   }
 
   private var categoryColor: Color {
-    return deadline.category?.color ?? .gray
+    return deadline.category.color
   }
 }
 

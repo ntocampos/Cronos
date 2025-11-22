@@ -14,6 +14,8 @@ struct CategoriesView: View {
   @State private var showingAddCategory = false
   @State private var categoryToEdit: Category?
   @State private var editMode: EditMode = .inactive
+  @State private var categoryToDelete: Category?
+  @State private var showingDeleteConfirmation = false
 
   var body: some View {
     NavigationView {
@@ -26,14 +28,23 @@ struct CategoriesView: View {
               .listRowSeparator(.hidden)
               .listRowInsets(EdgeInsets())
               .listRowBackground(Color.clear)
+              .deleteDisabled(category.isDefault)
               .onTapGesture {
                 if editMode == .inactive {
                   categoryToEdit = category
                 }
               }
+              .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                if !category.isDefault {
+                  Button(role: .destructive) {
+                    requestDeleteCategory(category)
+                  } label: {
+                    Label("Delete", systemImage: "trash")
+                  }
+                }
+              }
           }
           .onMove(perform: moveCategories)
-          .onDelete(perform: deleteCategories)
         }
         .listStyle(.plain)
         .environment(\.editMode, $editMode)
@@ -74,6 +85,29 @@ struct CategoriesView: View {
             )
           }
         }
+        .alert("Delete Category", isPresented: $showingDeleteConfirmation) {
+          Button("Cancel", role: .cancel) {
+            categoryToDelete = nil
+          }
+          Button("Delete", role: .destructive) {
+            if let category = categoryToDelete {
+              performDeleteCategory(category)
+            }
+          }
+        } message: {
+          if let category = categoryToDelete {
+            let count = category.deadlines.count
+            if count > 0 {
+              let defaultCategory = dataContainer.getDefaultCategory()
+              let defaultName = defaultCategory?.name ?? "the default category"
+              Text(
+                "This category has \(count) deadline\(count == 1 ? "" : "s"). They will be reassigned to \"\(defaultName)\"."
+              )
+            } else {
+              Text("Are you sure you want to delete \"\(category.name)\"?")
+            }
+          }
+        }
       }
     }
   }
@@ -89,16 +123,27 @@ struct CategoriesView: View {
     try? dataContainer.context.save()
   }
 
-  private func deleteCategories(offsets: IndexSet) {
-    withAnimation {
-      for index in offsets {
-        dataContainer.context.delete(categories[index])
-      }
-    }
+  private func requestDeleteCategory(_ category: Category) {
+    // Don't allow deleting the default category
+    guard !category.isDefault else { return }
+
+    categoryToDelete = category
+    showingDeleteConfirmation = true
   }
 
-  private func deleteCategory(_ category: Category) {
-    dataContainer.context.delete(category)
+  private func performDeleteCategory(_ category: Category) {
+    guard let defaultCategory = dataContainer.getDefaultCategory() else { return }
+
+    withAnimation {
+      // Reassign all deadlines to the default category
+      for deadline in category.deadlines {
+        deadline.category = defaultCategory
+      }
+
+      // Delete the category
+      dataContainer.context.delete(category)
+      categoryToDelete = nil
+    }
   }
 }
 

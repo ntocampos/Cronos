@@ -20,11 +20,15 @@ struct DeadlineFormView: View {
   @State private var notes: String
   @State private var date: Date
   @State private var selectedCategory: Category?
+  @State private var hasInitializedCategory = false
 
   // Computed properties
   private var isEditing: Bool { deadline != nil }
   private var navigationTitle: String { isEditing ? "Edit Deadline" : "Add Deadline" }
   private var saveButtonTitle: String { isEditing ? "Save" : "Add" }
+  private var canSave: Bool {
+    !title.trimmingCharacters(in: .whitespaces).isEmpty && selectedCategory != nil
+  }
 
   init(deadline: Deadline? = nil) {
     self.deadline = deadline
@@ -54,37 +58,23 @@ struct DeadlineFormView: View {
         }
 
         Section(header: Text("Category")) {
-          if categories.isEmpty {
-            HStack {
-              Image(systemName: "folder.badge.plus")
-                .foregroundColor(.secondary)
-              Text("No categories available")
-                .foregroundColor(.secondary)
-              Spacer()
-              Button("Create One") {
-                // This could open the category form, but for now just show text
-                // In a real implementation, you might want to dismiss this and open category creation
-              }
-              .font(.caption)
-              .buttonStyle(.bordered)
-            }
-          } else {
-            Picker("Category", selection: $selectedCategory) {
-              Text("None")
-                .tag(nil as Category?)
-
-              ForEach(categories) { category in
-                HStack {
-                  Circle()
-                    .fill(category.color)
-                    .frame(width: 12, height: 12)
-                  Text(category.name)
+          Picker("Category", selection: $selectedCategory) {
+            ForEach(categories) { category in
+              HStack {
+                Circle()
+                  .fill(category.color)
+                  .frame(width: 12, height: 12)
+                Text(category.name)
+                if category.isDefault {
+                  Text("Default")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 }
-                .tag(category as Category?)
               }
+              .tag(category as Category?)
             }
-            .pickerStyle(.menu)
           }
+          .pickerStyle(.menu)
         }
 
         if isEditing {
@@ -131,17 +121,31 @@ struct DeadlineFormView: View {
           Button(saveButtonTitle) {
             saveDeadline()
           }
-          .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+          .disabled(!canSave)
         }
       }
     }
     .presentationDetents([.large, .medium])
     .presentationDragIndicator(.visible)
+    .onAppear {
+      initializeCategoryIfNeeded()
+    }
+  }
+
+  private func initializeCategoryIfNeeded() {
+    guard !hasInitializedCategory else { return }
+    hasInitializedCategory = true
+
+    // For new deadlines, set the default category
+    if deadline == nil && selectedCategory == nil {
+      selectedCategory = dataContainer.getDefaultCategory() ?? categories.first
+    }
   }
 
   private func saveDeadline() {
     let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
     guard !trimmedTitle.isEmpty else { return }
+    guard let category = selectedCategory else { return }
 
     let trimmedNotes = notes.trimmingCharacters(in: .whitespaces)
     let finalNotes = trimmedNotes.isEmpty ? nil : trimmedNotes
@@ -152,14 +156,14 @@ struct DeadlineFormView: View {
         existingDeadline.title = trimmedTitle
         existingDeadline.notes = finalNotes
         existingDeadline.date = date
-        existingDeadline.category = selectedCategory
+        existingDeadline.category = category
       } else {
         // Create new deadline
         let newDeadline = Deadline(
           title: trimmedTitle,
           notes: finalNotes,
           date: date,
-          category: selectedCategory
+          category: category
         )
         dataContainer.context.insert(newDeadline)
       }
