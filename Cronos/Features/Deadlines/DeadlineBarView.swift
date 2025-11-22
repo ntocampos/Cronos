@@ -16,6 +16,8 @@ struct DeadlineBarView: View {
     SettingsKeys.deadlineDensity
   ) private var deadlineDensity: DeadlineDensity = .detailed
 
+  @State private var hasAppeared = false
+
   private let internalPadding: CGFloat = 4
   private let outerCornerRadius: CGFloat = 16
   private var innerCornerRadius: CGFloat {
@@ -45,10 +47,15 @@ struct DeadlineBarView: View {
           Spacer(minLength: 0)  // Pushes the rectangle to the right
           RoundedRectangle(cornerRadius: innerCornerRadius)
             .fill(categoryColor.opacity(0.3))
-            .frame(width: finalWidth)
+            .frame(width: hasAppeared ? finalWidth : minimumColoredWidth)
             .glassEffect(in: .rect(cornerRadius: innerCornerRadius))
         }
         .padding(internalPadding)
+      }
+      .onAppear {
+        withAnimation(.bouncy(duration: 1)) {
+          hasAppeared = true
+        }
       }
 
       // Content
