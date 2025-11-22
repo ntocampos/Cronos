@@ -44,9 +44,13 @@ struct DeadlineListView: View {
                 coordinator.edit(deadline)
               }
               .contextMenu {
+                Button("Complete", systemImage: "checkmark") {
+                  coordinator.complete(deadline)
+                }
                 Button("Edit", systemImage: "square.and.pencil") {
                   coordinator.edit(deadline)
                 }
+                Divider()
                 Button("Delete", systemImage: "trash", role: .destructive) {
                   coordinator.delete(deadline, context: modelContext)
                 }
@@ -65,20 +69,24 @@ struct DeadlineListView: View {
   @Previewable @State var selectedCategory: Category? = nil
   @Previewable @State var coordinator = DeadlineCoordinator()
 
-  let dataContainer = DataContainer(
-    includeSampleMoments: true,
-    isStoredInMemoryOnly: true
+  let categories = try! sampleContainer.context.fetch(FetchDescriptor<Category>())
+  let allDeadlines = try! sampleContainer.context.fetch(
+    FetchDescriptor<Deadline>(sortBy: [SortDescriptor(\.date)])
   )
 
-  let categories = try! dataContainer.context.fetch(FetchDescriptor<Category>())
-  let deadlines = try! dataContainer.context.fetch(FetchDescriptor<Deadline>())
+  let deadlines =
+    if let selectedCategory {
+      allDeadlines.filter { $0.category.id == selectedCategory.id }
+    } else {
+      allDeadlines
+    }
 
   DeadlineListView(
     deadlines: deadlines,
     categories: categories,
-    allDeadlinesCount: deadlines.count,
+    allDeadlinesCount: allDeadlines.count,
     selectedCategory: $selectedCategory
   )
-  .modelContainer(dataContainer.modelContainer)
+  .sampleDataContainer()
   .environment(coordinator)
 }

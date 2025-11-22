@@ -13,6 +13,12 @@ import SwiftUI
 class DeadlineCoordinator {
   var deadlineToEdit: Deadline?
 
+  func complete(_ deadline: Deadline) {
+    withAnimation {
+      deadline.isComplete = true
+    }
+  }
+
   func edit(_ deadline: Deadline) {
     deadlineToEdit = deadline
   }

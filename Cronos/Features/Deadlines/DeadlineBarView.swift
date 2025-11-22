@@ -61,11 +61,19 @@ struct DeadlineBarView: View {
       // Content
       VStack(alignment: .leading) {
         HStack {
-          Text(deadline.title)
-            .font(.body)
-            .fontWeight(.semibold)
-            .lineLimit(1)
-            .shadow(color: .primary.opacity(0.1), radius: 6)
+          HStack {
+            Text(deadline.title)
+              .font(.body)
+              .fontWeight(.semibold)
+              .lineLimit(1)
+              .shadow(color: .primary.opacity(0.1), radius: 6)
+
+            if deadline.isComplete {
+              Image(systemName: "checkmark")
+                .foregroundColor(.green)
+                .font(.caption.bold())
+            }
+          }
 
           Spacer()
 
