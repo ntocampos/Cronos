@@ -11,6 +11,7 @@ import SwiftUI
 struct DashboardView: View {
   @Environment(DataContainer.self) private var dataContainer
   @Environment(DeadlineCoordinator.self) private var coordinator
+  @Environment(\.modelContext) private var modelContext
   @Query(sort: \Deadline.date, order: .forward) private var deadlines: [Deadline]
   @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
@@ -29,12 +30,46 @@ struct DashboardView: View {
 
     NavigationStack {
       ZStack {
-        DeadlineListView(
-          deadlines: filteredDeadlines,
-          categories: categories,
-          allDeadlinesCount: deadlines.count,
-          selectedCategory: $selectedCategory
-        )
+        ScrollView {
+          VStack(spacing: 0) {
+            CategoryFilterRow(
+              categories: categories,
+              allDeadlinesCount: deadlines.count,
+              selectedCategory: $selectedCategory
+            )
+
+            if let selectedCategory {
+              FilterNoticeView(
+                categoryName: selectedCategory.name,
+                categoryColor: selectedCategory.color
+              )
+            }
+
+            LazyVStack(spacing: 12) {
+              ForEach(filteredDeadlines) { deadline in
+                DeadlineBarView(deadline: deadline)
+                  .onTapGesture {
+                    coordinator.edit(deadline)
+                  }
+                  .contextMenu {
+                    Button("Complete", systemImage: "checkmark") {
+                      coordinator.complete(deadline)
+                    }
+                    Button("Edit", systemImage: "square.and.pencil") {
+                      coordinator.edit(deadline)
+                    }
+                    Divider()
+                    Button("Delete", systemImage: "trash", role: .destructive) {
+                      coordinator.delete(deadline, context: modelContext)
+                    }
+                  }
+              }
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 16)
+          }
+        }
+        .animation(.default, value: selectedCategory)
       }
       .navigationTitle("Overview")
       .navigationBarTitleDisplayMode(.large)
@@ -69,6 +104,6 @@ struct DashboardView: View {
   @Previewable @State var coordinator = DeadlineCoordinator()
 
   DashboardView()
-    .sampleDataContainer()
     .environment(coordinator)
+    .sampleDataContainer()
 }
