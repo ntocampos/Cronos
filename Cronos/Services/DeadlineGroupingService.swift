@@ -3,6 +3,7 @@ import SwiftUI
 
 /// Represents a mode for grouping deadlines
 enum GroupingMode {
+  case none
   case byCategory
   case byTimeframe
 }
@@ -33,6 +34,9 @@ enum DeadlineGroupingService {
   /// - Returns: An array of deadline groups
   static func groupDeadlines(_ deadlines: [Deadline], by mode: GroupingMode) -> [DeadlineGroup] {
     switch mode {
+    case .none:
+      let sortedDeadlines = deadlines.sorted { $0.date < $1.date }
+      return [DeadlineGroup(title: "All Deadlines", deadlines: sortedDeadlines)]
     case .byCategory:
       return groupByCategory(deadlines)
     case .byTimeframe:

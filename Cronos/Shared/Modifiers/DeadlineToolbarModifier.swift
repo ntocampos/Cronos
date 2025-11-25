@@ -9,10 +9,23 @@ import SwiftUI
 
 struct DeadlineToolbarModifier: ViewModifier {
   @State private var showingAddDeadline: Bool = false
+  @State private var selectedGroupingMode: GroupingMode = .none
 
   @AppStorage(
     SettingsKeys.deadlineDensity
   ) private var deadlineDensity: DeadlineDensity = .detailed
+
+  private var groupingIcon: String {
+    switch selectedGroupingMode {
+    case .none: return "rectangle.3.group"
+    case .byCategory: return "tag.fill"
+    case .byTimeframe: return "calendar.circle.fill"
+    }
+  }
+
+  private var isGroupingActive: Bool {
+    selectedGroupingMode != .none
+  }
 
   func body(content: Content) -> some View {
     content
@@ -20,15 +33,19 @@ struct DeadlineToolbarModifier: ViewModifier {
         ToolbarItem(placement: .topBarTrailing) {
           Menu {
             Section("Group by") {
+              Button("None", systemImage: "rectangle.3.group") {
+                selectedGroupingMode = .none
+              }
               Button("Category", systemImage: "tag") {
-                print("Selected grouping: Category")
+                selectedGroupingMode = .byCategory
               }
               Button("Timeframe", systemImage: "calendar") {
-                print("Selected grouping: Timeframe")
+                selectedGroupingMode = .byTimeframe
               }
             }
           } label: {
-            Label("Group by", systemImage: "rectangle.3.group")
+            Label("Group by", systemImage: groupingIcon)
+              .foregroundStyle(isGroupingActive ? Color.accentColor : Color.primary)
           }
         }
 
