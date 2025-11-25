@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct DeadlineToolbarModifier: ViewModifier {
+  @Binding var selectedGroupingMode: GroupingMode
   @State private var showingAddDeadline: Bool = false
-  @State private var selectedGroupingMode: GroupingMode = .none
 
   @AppStorage(
     SettingsKeys.deadlineDensity
@@ -18,7 +18,7 @@ struct DeadlineToolbarModifier: ViewModifier {
   private var groupingIcon: String {
     switch selectedGroupingMode {
     case .none: return "rectangle.3.group"
-    case .byCategory: return "tag.fill"
+    case .byCategory: return "tag.circle.fill"
     case .byTimeframe: return "calendar.circle.fill"
     }
   }
@@ -33,7 +33,7 @@ struct DeadlineToolbarModifier: ViewModifier {
         ToolbarItem(placement: .topBarTrailing) {
           Menu {
             Section("Group by") {
-              Button("None", systemImage: "rectangle.3.group") {
+              Button("None", systemImage: "list.bullet") {
                 selectedGroupingMode = .none
               }
               Button("Category", systemImage: "tag") {
@@ -77,7 +77,7 @@ struct DeadlineToolbarModifier: ViewModifier {
 }
 
 extension View {
-  func deadlineToolbar() -> some View {
-    modifier(DeadlineToolbarModifier())
+  func deadlineToolbar(groupingMode: Binding<GroupingMode>) -> some View {
+    modifier(DeadlineToolbarModifier(selectedGroupingMode: groupingMode))
   }
 }

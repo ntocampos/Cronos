@@ -3,6 +3,7 @@ import SwiftUI
 struct FilterNoticeView: View {
   let categoryName: String
   let categoryColor: Color
+  let onClear: () -> Void
 
   var body: some View {
     HStack(spacing: 6) {
@@ -17,6 +18,13 @@ struct FilterNoticeView: View {
       Text(categoryName)
         .font(.subheadline)
         .fontWeight(.semibold)
+        .foregroundColor(categoryColor)
+
+      Spacer()
+
+      Button("Clear", action: onClear)
+        .font(.subheadline)
+        .fontWeight(.medium)
         .foregroundColor(categoryColor)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -38,17 +46,17 @@ struct FilterNoticeView: View {
     FilterNoticeView(
       categoryName: "Work",
       categoryColor: .blue
-    )
+    ) {}
 
     FilterNoticeView(
       categoryName: "Personal",
       categoryColor: .green
-    )
+    ) {}
 
     FilterNoticeView(
       categoryName: "School",
       categoryColor: .orange
-    )
+    ) {}
   }
   .listStyle(.plain)
 }
