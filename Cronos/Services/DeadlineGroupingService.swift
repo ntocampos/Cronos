@@ -43,45 +43,27 @@ enum DeadlineGroupingService {
   // MARK: - Private Grouping Methods
 
   private static func groupByCategory(_ deadlines: [Deadline]) -> [DeadlineGroup] {
-    // Group deadlines by category object (using UUID for unique grouping)
-    let grouped = Dictionary(grouping: deadlines) { deadline -> UUID? in
-      deadline.category?.id
-    }
-
-    // Separate uncategorized deadlines
-    let uncategorizedDeadlines = grouped[nil] ?? []
+    // Group deadlines by category (using UUID for unique grouping)
+    let grouped = Dictionary(grouping: deadlines) { $0.category.id }
 
     // Get all categories with deadlines and sort by sortOrder
     let categorizedGroups =
       grouped
-      .filter { $0.key != nil }
-      .compactMap { (categoryId, groupDeadlines) -> (Category, [Deadline])? in
-        guard let category = groupDeadlines.first?.category else { return nil }
+      .map { (_, groupDeadlines) -> (Category, [Deadline]) in
+        // Category is guaranteed to exist since it's required on Deadline
+        let category = groupDeadlines.first!.category
         return (category, groupDeadlines)
       }
       .sorted { $0.0.sortOrder < $1.0.sortOrder }
 
-    // Create DeadlineGroup objects for categorized items
-    var groups = categorizedGroups.map { (category, groupDeadlines) in
+    // Create DeadlineGroup objects
+    let groups = categorizedGroups.map { (category, groupDeadlines) in
       let sortedDeadlines = groupDeadlines.sorted { $0.date < $1.date }
       return DeadlineGroup(
         title: category.name,
         deadlines: sortedDeadlines,
         color: category.color,
         maxDaysReference: nil
-      )
-    }
-
-    // Add uncategorized group at the end if it has items
-    if !uncategorizedDeadlines.isEmpty {
-      let sortedDeadlines = uncategorizedDeadlines.sorted { $0.date < $1.date }
-      groups.append(
-        DeadlineGroup(
-          title: "Uncategorized",
-          deadlines: sortedDeadlines,
-          color: nil,
-          maxDaysReference: nil
-        )
       )
     }
 

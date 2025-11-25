@@ -10,37 +10,63 @@ import SwiftUI
 
 struct CategoryRowView: View {
   let category: Category
+  private let cornerRadius: CGFloat = 32
 
   var body: some View {
-    HStack {
+    HStack(spacing: 16) {
       Circle()
         .fill(category.color)
         .frame(width: 16, height: 16)
 
       VStack(alignment: .leading, spacing: 2) {
-        Text(category.name)
-          .font(.headline)
+        HStack(spacing: 6) {
+          Text(category.name)
+            .font(.headline)
 
-        Text("Tap to edit")
-          .font(.caption)
-          .foregroundColor(.secondary)
+          if category.isDefault {
+            Text("Default")
+              .font(.caption2)
+              .fontWeight(.medium)
+              .foregroundStyle(.secondary)
+              .padding(.horizontal, 6)
+              .padding(.vertical, 2)
+              .background(Color.secondary.opacity(0.15))
+              .clipShape(Capsule())
+          }
+        }
       }
 
       Spacer()
 
-      VStack(alignment: .trailing, spacing: 2) {
-        Text("\(category.deadlines.count)")
-          .font(.title2)
-          .fontWeight(.semibold)
-          .foregroundColor(.primary)
+      // Number badge
+      ZStack {
+        Circle()
+          .fill(category.color.opacity(0.2))
+          .frame(width: 32, height: 32)
+          .glassEffect()
 
-        Text(category.deadlines.count == 1 ? "deadline" : "deadlines")
-          .font(.caption)
-          .foregroundColor(.secondary)
+        Text("\(category.deadlines.count)")
+          .font(.subheadline)
+          .fontWeight(.semibold)
+          .foregroundColor(category.color)
       }
     }
-    .padding(.vertical, 8)
-    .contentShape(Rectangle())  // Makes entire row tappable
+    .padding(.vertical)
+    .padding(.horizontal)
+    .background(
+      LinearGradient(
+        gradient: Gradient(colors: [
+          Color(.systemBackground),
+          category.color.opacity(0.15),
+        ]),
+        startPoint: .leading,
+        endPoint: .trailing
+      )
+    )
+    .clipShape(
+      RoundedRectangle(cornerRadius: cornerRadius)
+    )
+    .glassEffect()
   }
 }
 
@@ -50,5 +76,6 @@ struct CategoryRowView: View {
     CategoryRowView(category: Category.personal)
     CategoryRowView(category: Category.empty)
   }
+  .padding()
   .sampleDataContainer()
 }

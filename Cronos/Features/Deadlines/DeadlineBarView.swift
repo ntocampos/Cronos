@@ -16,6 +16,8 @@ struct DeadlineBarView: View {
     SettingsKeys.deadlineDensity
   ) private var deadlineDensity: DeadlineDensity = .detailed
 
+  @State private var hasAppeared = false
+
   private let internalPadding: CGFloat = 4
   private let outerCornerRadius: CGFloat = 16
   private var innerCornerRadius: CGFloat {
@@ -45,29 +47,49 @@ struct DeadlineBarView: View {
           Spacer(minLength: 0)  // Pushes the rectangle to the right
           RoundedRectangle(cornerRadius: innerCornerRadius)
             .fill(categoryColor.opacity(0.3))
-            .frame(width: finalWidth)
+            .frame(width: hasAppeared ? finalWidth : minimumColoredWidth)
             .glassEffect(in: .rect(cornerRadius: innerCornerRadius))
         }
         .padding(internalPadding)
+      }
+      .onAppear {
+        withAnimation(.bouncy(duration: 1)) {
+          hasAppeared = true
+        }
       }
 
       // Content
       VStack(alignment: .leading) {
         HStack {
-          Text(deadline.title)
-            .font(.body)
-            .fontWeight(.semibold)
-            .lineLimit(1)
-            .shadow(color: .primary.opacity(0.1), radius: 6)
+          HStack {
+            Text(deadline.title)
+              .font(.body)
+              .fontWeight(.semibold)
+              .lineLimit(1)
+              .shadow(color: .primary.opacity(0.1), radius: 6)
+
+            if deadline.isComplete {
+              Image(systemName: "checkmark")
+                .foregroundColor(.green)
+                .font(.caption.bold())
+            }
+          }
 
           Spacer()
 
           HStack {
-            if let daysUntil = deadline.daysUntil, daysUntil > 0 {
-              Text(deadline.daysUntilText)
-                .font(.caption2)
-                .fontWeight(.medium)
-                .foregroundColor(categoryColor)
+            if let daysUntil = deadline.daysUntil {
+              if daysUntil > 0 {
+                Text(deadline.daysUntilText)
+                  .font(.caption2)
+                  .fontWeight(.medium)
+                  .foregroundColor(categoryColor)
+              } else {
+                Text("Overdue")
+                  .font(.caption2)
+                  .fontWeight(.bold)
+                  .foregroundColor(.red)
+              }
             }
 
             Image(systemName: "chevron.right")
@@ -82,11 +104,11 @@ struct DeadlineBarView: View {
           Text(deadline.notes ?? "No description")
             .font(.footnote)
             .foregroundColor(Color(.secondaryLabel))
-            .lineLimit(1)
+            .lineLimit(1, reservesSpace: true)
             .opacity(deadline.notes == nil ? 0 : 1)
             .padding(.bottom, 8)
 
-          Text(deadline.category?.name ?? "No category")
+          Text(deadline.category.name)
             .font(.caption2)
             .fontWeight(.medium)
             .foregroundColor(categoryColor)
@@ -121,7 +143,7 @@ struct DeadlineBarView: View {
   }
 
   private var categoryColor: Color {
-    return deadline.category?.color ?? .gray
+    return deadline.category.color
   }
 }
 
@@ -130,6 +152,7 @@ struct DeadlineBarView: View {
   @AppStorage(
     SettingsKeys.deadlineDensity
   ) var density: DeadlineDensity = .detailed
+  @Previewable @State var coordinator = DeadlineCoordinator()
 
   ScrollView {
     Picker(
@@ -150,4 +173,5 @@ struct DeadlineBarView: View {
     .padding()
   }
   .sampleDataContainer()
+  .environment(coordinator)
 }

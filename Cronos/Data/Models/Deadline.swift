@@ -14,20 +14,23 @@ final class Deadline: Identifiable {
   var title: String
   var notes: String?
   var date: Date
+  var isComplete: Bool = false
 
-  var category: Category?
+  var category: Category
 
   init(
     title: String,
     notes: String? = nil,
     date: Date,
-    category: Category? = nil
+    category: Category,
+    isComplete: Bool = false
   ) {
     self.id = UUID()
     self.title = title
     self.notes = notes
     self.date = date
     self.category = category
+    self.isComplete = isComplete
   }
 
   var isPast: Bool {
@@ -53,6 +56,19 @@ extension Deadline {
 
   static let sampleData = [
     Deadline(
+      title: "Passport renew",
+      date: Calendar.current
+        .date(byAdding: .day, value: -10, to: Date()) ?? Date(),
+      category: Category.personal,
+      isComplete: true,
+    ),
+    Deadline(
+      title: "Site release",
+      date: Calendar.current
+        .date(byAdding: .day, value: -2, to: Date()) ?? Date(),
+      category: Category.work,
+    ),
+    Deadline(
       title: "Project delivery",
       notes: "All-hands presentation",
       date: Calendar.current
@@ -61,6 +77,8 @@ extension Deadline {
     ),
     Deadline(
       title: "Christmas tree",
+      notes:
+        "A very long description to test how the UI behaves in this particular and maybe uncommon scenario",
       date: Calendar.current
         .date(byAdding: .day, value: 6, to: Date()) ?? Date(),
       category: Category.personal,

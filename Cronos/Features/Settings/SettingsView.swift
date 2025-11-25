@@ -10,8 +10,10 @@ import SwiftUI
 
 struct SettingsView: View {
   @Environment(DataContainer.self) private var dataContainer
+  @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
   @AppStorage("showNotifications") private var showNotifications = true
   @AppStorage("defaultReminderDays") private var defaultReminderDays = 3
+  @AppStorage(SettingsKeys.defaultCategoryId) private var defaultCategoryId: String = ""
   @State private var showingDeleteAlert = false
 
   var body: some View {
@@ -33,6 +35,25 @@ struct SettingsView: View {
               .pickerStyle(.menu)
             }
           }
+        }
+
+        Section(header: Text("Categories")) {
+          Picker("Default Category", selection: $defaultCategoryId) {
+            ForEach(categories) { category in
+              HStack {
+                Circle()
+                  .fill(category.color)
+                  .frame(width: 12, height: 12)
+                Text(category.name)
+              }
+              .tag(category.id.uuidString)
+            }
+          }
+          .pickerStyle(.menu)
+
+          Text("The default category is used for new deadlines and cannot be deleted.")
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
 
         Section(header: Text("App Information")) {
@@ -106,6 +127,18 @@ struct SettingsView: View {
       do {
         try dataContainer.context.delete(model: Deadline.self)
         try dataContainer.context.delete(model: Category.self)
+
+        // Reset the default category setting
+        UserDefaults.standard.removeObject(forKey: SettingsKeys.defaultCategoryId)
+
+        // Create a new default "General" category
+        let generalCategory = Category(
+          name: "General",
+          colorHex: Category.DefaultColors.blue,
+          sortOrder: 0
+        )
+        dataContainer.context.insert(generalCategory)
+        defaultCategoryId = generalCategory.id.uuidString
       } catch {
         print("Error deleting data: \(error)")
       }

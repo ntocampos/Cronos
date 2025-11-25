@@ -14,25 +14,21 @@ struct ContentView: View {
 
   var body: some View {
     TabView {
-      DashboardView()
-        .tabItem {
-          Label("Deadlines", systemImage: "chart.bar.fill")
-        }
+      Tab("Overview", systemImage: "rectangle.grid.1x3") {
+        DashboardView()
+      }
 
-      GroupsView()
-        .tabItem {
-          Label("Groups", systemImage: "rectangle.3.group")
-        }
+      Tab("Groups", systemImage: "rectangle.3.group") {
+        GroupsView()
+      }
 
-      CategoriesView()
-        .tabItem {
-          Label("Categories", systemImage: "folder.fill")
-        }
+      Tab("Categories", systemImage: "tag.fill") {
+        CategoriesView()
+      }
 
-      SettingsView()
-        .tabItem {
-          Label("Settings", systemImage: "gear")
-        }
+      Tab("Settings", systemImage: "gearshape") {
+        SettingsView()
+      }
     }
     .onAppear {
       if !hasMigrated {
@@ -44,6 +40,9 @@ struct ContentView: View {
 }
 
 #Preview {
+  @Previewable @State var coordinator = DeadlineCoordinator()
+
   ContentView()
     .sampleDataContainer()
+    .environment(coordinator)
 }

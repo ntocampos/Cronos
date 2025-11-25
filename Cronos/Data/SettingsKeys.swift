@@ -12,4 +12,5 @@ enum DeadlineDensity: String {
 
 enum SettingsKeys {
   static let deadlineDensity = "deadlineDensity"
+  static let defaultCategoryId = "defaultCategoryId"
 }
