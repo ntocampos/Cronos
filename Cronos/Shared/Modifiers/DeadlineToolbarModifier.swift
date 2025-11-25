@@ -33,6 +33,7 @@ struct DeadlineToolbarModifier: ViewModifier {
           Button("Add Deadline", systemImage: "plus") {
             showingAddDeadline = true
           }
+          .buttonStyle(.glassProminent)
         }
       }
       .sheet(isPresented: $showingAddDeadline) {
