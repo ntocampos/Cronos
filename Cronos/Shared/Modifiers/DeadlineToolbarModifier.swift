@@ -18,6 +18,21 @@ struct DeadlineToolbarModifier: ViewModifier {
     content
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
+          Menu {
+            Section("Group by") {
+              Button("Category", systemImage: "tag") {
+                print("Selected grouping: Category")
+              }
+              Button("Timeframe", systemImage: "calendar") {
+                print("Selected grouping: Timeframe")
+              }
+            }
+          } label: {
+            Label("Group by", systemImage: "rectangle.3.group")
+          }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
           Button {
             deadlineDensity = deadlineDensity == .detailed ? .compact : .detailed
           } label: {
