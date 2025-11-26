@@ -8,6 +8,12 @@ enum GroupingMode {
   case byTimeframe
 }
 
+/// Represents a filter mode for deadline completion status
+enum DeadlineFilterMode {
+  case active  // isComplete = false
+  case completed  // isComplete = true
+}
+
 /// Represents a group of deadlines with associated metadata
 struct DeadlineGroup: Identifiable {
   let id: String

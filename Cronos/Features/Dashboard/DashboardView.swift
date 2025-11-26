@@ -16,21 +16,46 @@ struct DashboardView: View {
 
   @State private var selectedCategory: Category?
   @State private var selectedGroupingMode: GroupingMode = .none
+  @State private var selectedFilterMode: DeadlineFilterMode = .active
 
   private var filteredDeadlines: [Deadline] {
-    guard let selectedCategory else { return deadlines }
-    return deadlines.filter { $0.category.id == selectedCategory.id }
+    // First filter by completion status
+    let statusFiltered = deadlines.filter {
+      selectedFilterMode == .active ? !$0.isComplete : $0.isComplete
+    }
+
+    // Then filter by category if selected
+    guard let selectedCategory else { return statusFiltered }
+    return statusFiltered.filter { $0.category.id == selectedCategory.id }
   }
 
   private var groupedDeadlines: [DeadlineGroup] {
-    let source = selectedGroupingMode == .none ? filteredDeadlines : deadlines
+    // Always filter by completion status first
+    let statusFiltered = deadlines.filter {
+      selectedFilterMode == .active ? !$0.isComplete : $0.isComplete
+    }
+
+    // Apply category filter only when not grouping
+    let source: [Deadline]
+    if selectedGroupingMode == .none, let selectedCategory {
+      source = statusFiltered.filter { $0.category.id == selectedCategory.id }
+    } else {
+      source = statusFiltered
+    }
+
     return DeadlineGroupingService.groupDeadlines(source, by: selectedGroupingMode)
   }
 
   @ViewBuilder
   private var emptyStateView: some View {
     if filteredDeadlines.isEmpty {
-      if selectedCategory == nil {
+      if selectedFilterMode == .completed {
+        ContentUnavailableView(
+          "No Completed Deadlines",
+          systemImage: "checkmark.circle",
+          description: Text("Completed deadlines will appear here")
+        )
+      } else if selectedCategory == nil {
         ContentUnavailableView(
           "No Deadlines",
           systemImage: "calendar",
@@ -119,7 +144,10 @@ struct DashboardView: View {
       }
       .navigationTitle("Overview")
       .navigationBarTitleDisplayMode(.large)
-      .deadlineToolbar(groupingMode: $selectedGroupingMode)
+      .deadlineToolbar(
+        groupingMode: $selectedGroupingMode,
+        filterMode: $selectedFilterMode
+      )
       .sheet(item: $coordinator.deadlineToEdit) { deadline in
         DeadlineFormView(deadline: deadline)
           .presentationDetents([.large])
