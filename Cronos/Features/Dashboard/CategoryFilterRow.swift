@@ -4,6 +4,7 @@ import SwiftUI
 struct CategoryFilterRow: View {
   let categories: [Category]
   let allDeadlinesCount: Int
+  let categoryDeadlineCounts: [UUID: Int]
   @Binding var selectedCategory: Category?
 
   var body: some View {
@@ -21,7 +22,7 @@ struct CategoryFilterRow: View {
           CategoryButton(
             name: category.name,
             color: category.color,
-            count: category.deadlines.count,
+            count: categoryDeadlineCounts[category.id] ?? 0,
             isSelected: selectedCategory?.id == category.id,
             action: { selectedCategory = category }
           )
@@ -87,10 +88,18 @@ private struct CategoryButton: View {
   let categories = try! dataContainer.context.fetch(FetchDescriptor<Category>())
   let deadlines = try! dataContainer.context.fetch(FetchDescriptor<Deadline>())
 
+  // Build category counts dictionary using reduce
+  let counts = Dictionary(
+    uniqueKeysWithValues: categories.map { category in
+      (category.id, deadlines.filter { $0.category.id == category.id }.count)
+    }
+  )
+
   List {
     CategoryFilterRow(
       categories: categories,
       allDeadlinesCount: deadlines.count,
+      categoryDeadlineCounts: counts,
       selectedCategory: $selectedCategory
     )
 

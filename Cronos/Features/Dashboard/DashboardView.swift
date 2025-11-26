@@ -18,29 +18,38 @@ struct DashboardView: View {
   @State private var selectedGroupingMode: GroupingMode = .none
   @State private var selectedFilterMode: DeadlineFilterMode = .active
 
-  private var filteredDeadlines: [Deadline] {
-    // First filter by completion status
-    let statusFiltered = deadlines.filter {
+  /// Deadlines filtered by completion status only
+  private var statusFilteredDeadlines: [Deadline] {
+    deadlines.filter {
       selectedFilterMode == .active ? !$0.isComplete : $0.isComplete
     }
+  }
 
-    // Then filter by category if selected
-    guard let selectedCategory else { return statusFiltered }
-    return statusFiltered.filter { $0.category.id == selectedCategory.id }
+  /// Deadlines filtered by both completion status and category
+  private var filteredDeadlines: [Deadline] {
+    guard let selectedCategory else { return statusFilteredDeadlines }
+    return statusFilteredDeadlines.filter { $0.category.id == selectedCategory.id }
+  }
+
+  /// Counts of deadlines per category (respecting the completion filter)
+  private var categoryDeadlineCounts: [UUID: Int] {
+    var counts: [UUID: Int] = [:]
+    for category in categories {
+      counts[category.id] =
+        statusFilteredDeadlines.filter {
+          $0.category.id == category.id
+        }.count
+    }
+    return counts
   }
 
   private var groupedDeadlines: [DeadlineGroup] {
-    // Always filter by completion status first
-    let statusFiltered = deadlines.filter {
-      selectedFilterMode == .active ? !$0.isComplete : $0.isComplete
-    }
-
     // Apply category filter only when not grouping
     let source: [Deadline]
     if selectedGroupingMode == .none, let selectedCategory {
-      source = statusFiltered.filter { $0.category.id == selectedCategory.id }
+      source = statusFilteredDeadlines.filter { $0.category.id == selectedCategory.id }
     } else {
-      source = statusFiltered
+      source = statusFilteredDeadlines
     }
 
     return DeadlineGroupingService.groupDeadlines(source, by: selectedGroupingMode)
@@ -77,6 +86,16 @@ struct DashboardView: View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 0) {
+          // Completed filter notice (when showing completed deadlines)
+          if selectedFilterMode == .completed {
+            CompletedFilterNoticeView {
+              withAnimation {
+                selectedFilterMode = .active
+              }
+            }
+            .padding(.bottom, 8)
+          }
+
           // Grouping notice (when grouping is active)
           if selectedGroupingMode != .none {
             GroupingNoticeView(groupingMode: selectedGroupingMode) {
@@ -89,7 +108,8 @@ struct DashboardView: View {
             // Category filter (only when no grouping)
             CategoryFilterRow(
               categories: categories,
-              allDeadlinesCount: deadlines.count,
+              allDeadlinesCount: statusFilteredDeadlines.count,
+              categoryDeadlineCounts: categoryDeadlineCounts,
               selectedCategory: $selectedCategory
             )
 
