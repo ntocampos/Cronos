@@ -10,13 +10,17 @@ enum GroupingMode {
 
 /// Represents a group of deadlines with associated metadata
 struct DeadlineGroup: Identifiable {
-  let id = UUID()
+  let id: String
   let title: String
   let deadlines: [Deadline]
   let color: Color?
   let maxDaysReference: Double?
 
-  init(title: String, deadlines: [Deadline], color: Color? = nil, maxDaysReference: Double? = nil) {
+  init(
+    id: String, title: String, deadlines: [Deadline], color: Color? = nil,
+    maxDaysReference: Double? = nil
+  ) {
+    self.id = id
     self.title = title
     self.deadlines = deadlines
     self.color = color
@@ -36,7 +40,7 @@ enum DeadlineGroupingService {
     switch mode {
     case .none:
       let sortedDeadlines = deadlines.sorted { $0.date < $1.date }
-      return [DeadlineGroup(title: "All Deadlines", deadlines: sortedDeadlines)]
+      return [DeadlineGroup(id: "all", title: "All Deadlines", deadlines: sortedDeadlines)]
     case .byCategory:
       return groupByCategory(deadlines)
     case .byTimeframe:
@@ -64,6 +68,7 @@ enum DeadlineGroupingService {
     let groups = categorizedGroups.map { (category, groupDeadlines) in
       let sortedDeadlines = groupDeadlines.sorted { $0.date < $1.date }
       return DeadlineGroup(
+        id: category.id.uuidString,
         title: category.name,
         deadlines: sortedDeadlines,
         color: category.color,
@@ -77,13 +82,14 @@ enum DeadlineGroupingService {
   private static func groupByTimeframe(_ deadlines: [Deadline]) -> [DeadlineGroup] {
     var groups: [DeadlineGroup] = []
 
-    // Define timeframes with their properties
-    let timeframes: [(title: String, maxDays: Int, color: Color, range: ClosedRange<Int>)] = [
-      ("Next 7 days", 7, .red, 0...7),
-      ("Next 30 days", 30, .orange, 8...30),
-      ("Next 6 months", 180, .yellow, 31...180),
-      ("Next year", 365, .green, 181...365),
-    ]
+    // Define timeframes with their properties (id, title, maxDays, color, range)
+    let timeframes:
+      [(id: String, title: String, maxDays: Int, color: Color, range: ClosedRange<Int>)] = [
+        ("next-7-days", "Next 7 days", 7, .red, 0...7),
+        ("next-30-days", "Next 30 days", 30, .orange, 8...30),
+        ("next-6-months", "Next 6 months", 180, .yellow, 31...180),
+        ("next-year", "Next year", 365, .green, 181...365),
+      ]
 
     // Group deadlines into timeframes
     for timeframe in timeframes {
@@ -97,6 +103,7 @@ enum DeadlineGroupingService {
         let sortedDeadlines = filteredDeadlines.sorted { $0.date < $1.date }
         groups.append(
           DeadlineGroup(
+            id: timeframe.id,
             title: timeframe.title,
             deadlines: sortedDeadlines,
             color: timeframe.color,

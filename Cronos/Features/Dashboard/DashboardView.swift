@@ -114,7 +114,7 @@ struct DashboardView: View {
             }
           }
           .padding(.vertical, 6)
-          .animation(.default, value: groupedDeadlines.map(\.id))
+          .animation(.default, value: groupedDeadlines.flatMap { $0.deadlines.map(\.id) })
         }
       }
       .navigationTitle("Overview")
