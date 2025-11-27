@@ -66,15 +66,11 @@ struct CategoriesView: View {
             }
           }
         }
-        .sheet(isPresented: $showingAddCategory) {
+        .fullScreenCover(isPresented: $showingAddCategory) {
           CategoryFormView()
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
         }
-        .sheet(item: $categoryToEdit) { category in
+        .fullScreenCover(item: $categoryToEdit) { category in
           CategoryFormView(category: category)
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
         }
         .overlay {
           if categories.isEmpty {

@@ -94,10 +94,8 @@ struct DeadlineToolbarModifier: ViewModifier {
           .buttonStyle(.glassProminent)
         }
       }
-      .sheet(isPresented: $showingAddDeadline) {
+      .fullScreenCover(isPresented: $showingAddDeadline) {
         DeadlineFormView()
-          .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
       }
   }
 }
