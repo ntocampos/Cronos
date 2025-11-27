@@ -15,16 +15,56 @@ struct DashboardView: View {
   @Query(sort: \Category.sortOrder, order: .forward) private var categories: [Category]
 
   @State private var selectedCategory: Category?
+  @State private var selectedGroupingMode: GroupingMode = .none
+  @State private var selectedFilterMode: DeadlineFilterMode = .active
 
+  /// Deadlines filtered by completion status only
+  private var statusFilteredDeadlines: [Deadline] {
+    deadlines.filter {
+      selectedFilterMode == .active ? !$0.isComplete : $0.isComplete
+    }
+  }
+
+  /// Deadlines filtered by both completion status and category
   private var filteredDeadlines: [Deadline] {
-    guard let selectedCategory else { return deadlines }
-    return deadlines.filter { $0.category.id == selectedCategory.id }
+    guard let selectedCategory else { return statusFilteredDeadlines }
+    return statusFilteredDeadlines.filter { $0.category.id == selectedCategory.id }
+  }
+
+  /// Counts of deadlines per category (respecting the completion filter)
+  private var categoryDeadlineCounts: [UUID: Int] {
+    var counts: [UUID: Int] = [:]
+    for category in categories {
+      counts[category.id] =
+        statusFilteredDeadlines.filter {
+          $0.category.id == category.id
+        }.count
+    }
+    return counts
+  }
+
+  private var groupedDeadlines: [DeadlineGroup] {
+    // Apply category filter only when not grouping
+    let source: [Deadline]
+    if selectedGroupingMode == .none, let selectedCategory {
+      source = statusFilteredDeadlines.filter { $0.category.id == selectedCategory.id }
+    } else {
+      source = statusFilteredDeadlines
+    }
+
+    return DeadlineGroupingService.groupDeadlines(source, by: selectedGroupingMode)
   }
 
   @ViewBuilder
   private var emptyStateView: some View {
     if filteredDeadlines.isEmpty {
-      if selectedCategory == nil {
+      if selectedFilterMode == .completed {
+        ContentUnavailableView(
+          "No Completed Deadlines",
+          systemImage: "checkmark.circle",
+          description: Text("Completed deadlines will appear here")
+        )
+      } else if selectedCategory == nil {
         ContentUnavailableView(
           "No Deadlines",
           systemImage: "calendar",
@@ -46,39 +86,88 @@ struct DashboardView: View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 0) {
-          CategoryFilterRow(
-            categories: categories,
-            allDeadlinesCount: deadlines.count,
-            selectedCategory: $selectedCategory
-          )
-
-          if let selectedCategory {
-            FilterNoticeView(
-              categoryName: selectedCategory.name,
-              categoryColor: selectedCategory.color
-            )
+          // Completed filter notice (when showing completed deadlines)
+          if selectedFilterMode == .completed {
+            CompletedFilterNoticeView {
+              withAnimation {
+                selectedFilterMode = .active
+              }
+            }
+            .padding(.bottom, 8)
           }
 
-          LazyVStack(spacing: 12) {
-            ForEach(filteredDeadlines) { deadline in
-              DeadlineBarView(deadline: deadline)
-                .accessibilityHint("Double tap to edit")
-                .onTapGesture {
-                  coordinator.edit(deadline)
+          // Grouping notice (when grouping is active)
+          if selectedGroupingMode != .none {
+            GroupingNoticeView(groupingMode: selectedGroupingMode) {
+              withAnimation {
+                selectedGroupingMode = .none
+              }
+            }
+            .padding(.bottom, 8)
+          } else {
+            // Category filter (only when no grouping)
+            CategoryFilterRow(
+              categories: categories,
+              allDeadlinesCount: statusFilteredDeadlines.count,
+              categoryDeadlineCounts: categoryDeadlineCounts,
+              selectedCategory: $selectedCategory
+            )
+
+            if let selectedCategory {
+              FilterNoticeView(
+                categoryName: selectedCategory.name,
+                categoryColor: selectedCategory.color
+              ) {
+                withAnimation {
+                  self.selectedCategory = nil
                 }
-                .contextMenu {
-                  deadlineContextMenu(for: deadline)
+              }
+            }
+          }
+
+          // Unified deadline rendering
+          LazyVStack(spacing: 24) {
+            ForEach(groupedDeadlines) { group in
+              VStack(alignment: .leading, spacing: 8) {
+                // Only show header when grouping is active
+                if selectedGroupingMode != .none {
+                  GroupHeaderView(
+                    title: group.title,
+                    count: group.deadlines.count,
+                    color: group.color
+                  )
+                  .padding(.horizontal, 16)
                 }
+
+                LazyVStack(spacing: 12) {
+                  ForEach(group.deadlines) { deadline in
+                    DeadlineBarView(
+                      deadline: deadline,
+                      maxDaysReference: group.maxDaysReference ?? 30
+                    )
+                    .accessibilityHint("Double tap to edit")
+                    .onTapGesture {
+                      coordinator.edit(deadline)
+                    }
+                    .contextMenu {
+                      deadlineContextMenu(for: deadline)
+                    }
+                  }
+                }
+                .padding(.horizontal, 16)
+              }
             }
           }
           .padding(.vertical, 6)
-          .padding(.horizontal, 16)
-          .animation(.default, value: filteredDeadlines.map(\.id))
+          .animation(.default, value: groupedDeadlines.flatMap { $0.deadlines.map(\.id) })
         }
       }
       .navigationTitle("Overview")
       .navigationBarTitleDisplayMode(.large)
-      .deadlineToolbar()
+      .deadlineToolbar(
+        groupingMode: $selectedGroupingMode,
+        filterMode: $selectedFilterMode
+      )
       .sheet(item: $coordinator.deadlineToEdit) { deadline in
         DeadlineFormView(deadline: deadline)
           .presentationDetents([.large])

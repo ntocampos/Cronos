@@ -18,10 +18,6 @@ struct ContentView: View {
         DashboardView()
       }
 
-      Tab("Groups", systemImage: "rectangle.3.group") {
-        GroupsView()
-      }
-
       Tab("Categories", systemImage: "tag.fill") {
         CategoriesView()
       }

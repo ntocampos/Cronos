@@ -48,7 +48,10 @@ struct DeadlineBarView: View {
           RoundedRectangle(cornerRadius: innerCornerRadius)
             .fill(categoryColor.opacity(0.3))
             .frame(width: hasAppeared ? finalWidth : minimumColoredWidth)
-            .glassEffect(in: .rect(cornerRadius: innerCornerRadius))
+            .glassEffect(
+              .regular.interactive(),
+              in: .rect(cornerRadius: innerCornerRadius)
+            )
         }
         .padding(internalPadding)
       }
@@ -114,7 +117,10 @@ struct DeadlineBarView: View {
             .foregroundColor(categoryColor)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .glassEffect(in: .rect(cornerRadius: 6))
+            .glassEffect(
+              .clear.interactive(),
+              in: .rect(cornerRadius: 6)
+            )
         }
       }
       .padding()
