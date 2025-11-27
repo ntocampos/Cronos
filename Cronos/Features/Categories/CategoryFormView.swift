@@ -113,11 +113,7 @@ struct CategoryFormView: View {
       .foregroundStyle(.primary)
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
-      .background(
-        Capsule()
-          .fill(Color(.secondarySystemFill).opacity(0.3))
-          .glassEffect(in: .capsule)
-      )
+      .glassEffect(.regular.interactive())
 
       Spacer()
 
@@ -130,12 +126,8 @@ struct CategoryFormView: View {
       .foregroundStyle(canSave ? .white : .secondary)
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
-      .background(
-        Capsule()
-          .fill(canSave ? accentColor : Color(.secondarySystemFill).opacity(0.3))
-          .glassEffect(in: .capsule)
-      )
       .disabled(!canSave)
+      .glassEffect(.regular.tint(canSave ? accentColor : Color(.secondarySystemFill)).interactive())
       .animation(.easeInOut(duration: 0.2), value: canSave)
       .animation(.easeInOut(duration: 0.2), value: accentColor)
     }
