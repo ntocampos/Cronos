@@ -38,9 +38,11 @@ private struct CategoryPill: View {
   var body: some View {
     Button(action: onTap) {
       HStack(spacing: 8) {
-        Circle()
-          .fill(category.color)
-          .frame(width: 12, height: 12)
+        if !isSelected {
+          Circle()
+            .fill(category.color)
+            .frame(width: 12, height: 12)
+        }
 
         Text(category.name)
           .font(.subheadline)
