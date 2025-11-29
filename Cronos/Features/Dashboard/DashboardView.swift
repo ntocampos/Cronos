@@ -168,10 +168,8 @@ struct DashboardView: View {
         groupingMode: $selectedGroupingMode,
         filterMode: $selectedFilterMode
       )
-      .sheet(item: $coordinator.deadlineToEdit) { deadline in
+      .fullScreenCover(item: $coordinator.deadlineToEdit) { deadline in
         DeadlineFormView(deadline: deadline)
-          .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
       }
       .overlay {
         emptyStateView

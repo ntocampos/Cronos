@@ -15,15 +15,24 @@ struct CategoryFormView: View {
   // Category being edited (nil for new category)
   let category: Category?
 
+  // Form state
   @State private var name: String
   @State private var selectedColorHex: String
+
+  // Focus management
+  @FocusState private var isNameFocused: Bool
 
   private let availableColors = Category.DefaultColors.all
 
   // Computed properties
   private var isEditing: Bool { category != nil }
-  private var navigationTitle: String { isEditing ? "Edit Category" : "Add Category" }
-  private var saveButtonTitle: String { isEditing ? "Save" : "Add" }
+  private var saveButtonTitle: String { isEditing ? "Save" : "Create" }
+  private var canSave: Bool {
+    !name.trimmingCharacters(in: .whitespaces).isEmpty
+  }
+  private var accentColor: Color {
+    Color(hex: selectedColorHex)
+  }
 
   init(category: Category? = nil) {
     self.category = category
@@ -32,66 +41,144 @@ struct CategoryFormView: View {
   }
 
   var body: some View {
-    NavigationView {
-      Form {
-        Section(header: Text("Category Details")) {
-          TextField("Category Name", text: $name)
-        }
+    GeometryReader { geometry in
+      ZStack {
+        // Plain background
+        Color(.systemBackground)
+          .ignoresSafeArea()
 
-        Section(header: Text("Color")) {
-          LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
-            ForEach(availableColors, id: \.self) { colorHex in
-              Button(action: {
-                selectedColorHex = colorHex
-              }) {
-                Circle()
-                  .fill(Color(hex: colorHex))
-                  .frame(width: 40, height: 40)
-                  .overlay(
-                    Circle()
-                      .stroke(
-                        selectedColorHex == colorHex ? Color.primary : Color.clear,
-                        lineWidth: 3
-                      )
-                  )
+        // Subtle radial gradient from bottom-right corner
+        RadialGradient(
+          colors: [
+            accentColor.opacity(0.15),
+            accentColor.opacity(0.05),
+            Color.clear,
+          ],
+          center: .bottomTrailing,
+          startRadius: 0,
+          endRadius: geometry.size.height * 0.8
+        )
+        .ignoresSafeArea()
+        .animation(.easeInOut(duration: 0.3), value: accentColor)
+
+        VStack(spacing: 0) {
+          // Header with glass buttons
+          headerView
+
+          // Scrollable form content
+          ScrollView {
+            VStack(alignment: .leading, spacing: 32) {
+              // Name section (largest visual weight)
+              nameSection
+
+              // Color selection
+              colorSection
+
+              // Statistics (edit mode only)
+              if isEditing {
+                statisticsSection
               }
-              .buttonStyle(.plain)
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 24)
+            .padding(.bottom, 40)
           }
-          .padding(.vertical, 8)
+          .scrollDismissesKeyboard(.interactively)
         }
-
-        if isEditing {
-          Section(header: Text("Statistics")) {
-            HStack {
-              Text("Associated Deadlines")
-              Spacer()
-              Text("\(category?.deadlines.count ?? 0)")
-                .foregroundColor(.secondary)
-            }
+      }
+      .onAppear {
+        // Auto-focus name for new categories
+        if !isEditing {
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            isNameFocused = true
           }
         }
       }
-      .navigationTitle(navigationTitle)
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button("Cancel") {
-            dismiss()
-          }
-        }
-
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button(saveButtonTitle) {
-            saveCategory()
-          }
-          .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
-        }
+      .contentShape(Rectangle())
+      .onTapGesture {
+        isNameFocused = false
       }
     }
-    .presentationDetents([.medium, .large])
-    .presentationDragIndicator(.visible)
   }
+
+  // MARK: - Header View
+
+  private var headerView: some View {
+    HStack {
+      // Cancel button - glass secondary style
+      Button("Cancel") {
+        dismiss()
+      }
+      .font(.body)
+      .foregroundStyle(.primary)
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
+      .glassEffect(.regular.interactive())
+
+      Spacer()
+
+      // Save button - glass primary style with accent color
+      Button(saveButtonTitle) {
+        saveCategory()
+      }
+      .font(.body)
+      .fontWeight(.semibold)
+      .foregroundStyle(canSave ? .white : .secondary)
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
+      .disabled(!canSave)
+      .glassEffect(.regular.tint(canSave ? accentColor : Color(.secondarySystemFill)).interactive())
+      .animation(.easeInOut(duration: 0.2), value: canSave)
+      .animation(.easeInOut(duration: 0.2), value: accentColor)
+    }
+    .padding(.horizontal, 16)
+    .padding(.vertical, 12)
+  }
+
+  // MARK: - Name Section
+
+  private var nameSection: some View {
+    LargeInlineTextField(
+      text: $name,
+      placeholder: "Category name",
+      isFocused: $isNameFocused
+    )
+  }
+
+  // MARK: - Color Section
+
+  private var colorSection: some View {
+    ColorPillSelector(
+      colors: availableColors,
+      selectedColorHex: $selectedColorHex
+    )
+  }
+
+  // MARK: - Statistics Section
+
+  private var statisticsSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      FormSectionHeader("Statistics", icon: "chart.bar")
+
+      HStack {
+        Text("Associated Deadlines")
+          .font(.body)
+        Spacer()
+        Text("\(category?.deadlines.count ?? 0)")
+          .font(.body)
+          .fontWeight(.semibold)
+          .foregroundStyle(accentColor)
+      }
+      .padding(16)
+      .background(
+        RoundedRectangle(cornerRadius: 16)
+          .fill(Color(.secondarySystemFill).opacity(0.3))
+          .glassEffect(in: .rect(cornerRadius: 16))
+      )
+    }
+  }
+
+  // MARK: - Actions
 
   private func saveCategory() {
     let trimmedName = name.trimmingCharacters(in: .whitespaces)
